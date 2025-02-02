@@ -1,0 +1,4 @@
+.vscode/
+images/*.psd
+node_modules/
+.DS_Store
