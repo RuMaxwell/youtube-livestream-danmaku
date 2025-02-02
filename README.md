@@ -3,9 +3,41 @@
 This is a Chromium based browser extension that displays live chat messages as
 danmaku over a YouTube livestream video.
 
+## Features
+
+- [ ] Danmaku display
+  - [x] Display incoming live chat messages as danmaku over YouTube livestream
+    videos
+    - [x] Danmaku on default view
+    - [x] Danmaku on theater mode
+    - [x] Danmaku on fullscreen mode
+    - [x] Display emojis
+    - [ ] Display membership messages
+  - [x] Move the live chat area to the bottom of the video
+  - [x] Distribute simultaneous chat messages across multiple lines
+  - [ ] Distribute sequential chat messages that might overlap across multiple
+    lines
+  - [x] Stop moving when the video is paused and resume when the video is played
+- [ ] Interractions
+- [ ] Configurations
+  - [ ] Danmaku
+    - [ ] Font
+      - [ ] Font family
+      - [ ] Font size
+    - [ ] Line gap
+    - [ ] Color
+      - [ ] Text color
+      - [ ] Shadow color
+    - [ ] Speed
+    - [ ] Display area (upper 1/4, 1/2, full)
+  - [ ] Live chat area
+    - [ ] Toggle whether to move to the bottom of the video
+    - [ ] Maximum waiting time for the live chat area to load
+
 ## Installation
 
-This extension is not yet published to the Chrome extension web store. To install it:
+This extension is not yet published to the Chrome extension web store. To
+install it:
 
 1. Clone this repository
 2. Go to the browser's extension page (`chrome://extensions` or other depending
