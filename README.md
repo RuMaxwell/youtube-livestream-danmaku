@@ -12,7 +12,7 @@ danmaku over a YouTube livestream video.
     - [x] Danmaku on theater mode
     - [x] Danmaku on fullscreen mode
     - [x] Display emojis
-    - [ ] Display membership messages
+    - [x] Display paid and membership messages
   - [x] Move the live chat area to the bottom of the video
   - [x] Distribute simultaneous chat messages across multiple lines
   - [x] Distribute sequential chat messages that might overlap across multiple

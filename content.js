@@ -229,21 +229,38 @@ function unwatchChatChanges() {
  */
 function getChats(liveChatApp, latestChatOrd) {
   const chatRenderers = liveChatApp.querySelectorAll(
-    'yt-live-chat-text-message-renderer'
+    '#items .yt-live-chat-item-list-renderer'
   )
   let lastChat
   const chats = Array.from(
     chatRenderers
       .values()
       .map((renderer) => {
+        if (!renderer.querySelector('#timestamp')) {
+          // Some items have no timestamp (e.g. system messages), no need to
+          // display them.
+          return null
+        }
+        // Known handled cases:
+        // renderer.tagName.toLowerCase() === 'yt-live-chat-paid-message-renderer'
+        // renderer.tagName.toLowerCase() === 'yt-live-chat-membership-item-renderer'
+        // renderer.tagName.toLowerCase() === 'yt-live-chat-text-message-renderer'
+        const ord = timestampToOrd(
+          renderer.querySelector('#timestamp').innerText
+        )
+        const messageHtml = renderer.querySelector('#message').innerHTML
+        if (!messageHtml) {
+          // Some items have no message (e.g. joining subscription), no need to
+          // display them.
+          return null
+        }
         lastChat = {
-          ord: timestampToOrd(renderer.querySelector('#timestamp').innerText),
-          message: renderer.querySelector('#message').innerText,
-          messageHtml: renderer.querySelector('#message').innerHTML,
+          ord,
+          messageHtml,
         }
         return lastChat
       })
-      .filter((chat) => chat.ord > latestChatOrd)
+      .filter((chat) => chat && chat.ord > latestChatOrd)
   )
   return { newer: chats, last: lastChat }
 }
