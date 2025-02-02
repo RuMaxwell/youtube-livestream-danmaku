@@ -180,10 +180,10 @@ function watchChatChanges(liveChatApp, danmakuContainer) {
     for (const mutation of mutationsList) {
       if (mutation.type === 'childList') {
         // Uses the last chat as the reference to get newer chats.
-        const lastChatOrd = chats[chats.length - 1]?.ord ?? -Infinity
+        const lastCachedChat = chats[chats.length - 1] ?? { ord: -Infinity }
         const { newer: newerChats, last: lastChat } = getChats(
           liveChatApp,
-          lastChatOrd
+          lastCachedChat
         )
         // Caches newer incoming chats if there are newer chats. Replaces the
         // cache with the last incoming chat when all incoming chats are older
@@ -227,42 +227,73 @@ function unwatchChatChanges() {
  * newer than the given `lastChatOrd`) and the last existing chat (may be
  * `undefined` if no existing chat).
  */
-function getChats(liveChatApp, latestChatOrd) {
+function getChats(liveChatApp, lastCachedChat) {
   const chatRenderers = liveChatApp.querySelectorAll(
     '#items .yt-live-chat-item-list-renderer'
   )
   let lastChat
-  const chats = Array.from(
+  const maybeNewerChats = Array.from(
     chatRenderers
       .values()
       .map((renderer) => {
         if (!renderer.querySelector('#timestamp')) {
           // Some items have no timestamp (e.g. system messages), no need to
-          // display them.
+          // include them.
           return null
         }
         // Known handled cases:
         // renderer.tagName.toLowerCase() === 'yt-live-chat-paid-message-renderer'
         // renderer.tagName.toLowerCase() === 'yt-live-chat-membership-item-renderer'
         // renderer.tagName.toLowerCase() === 'yt-live-chat-text-message-renderer'
+        const id = renderer.id
         const ord = timestampToOrd(
           renderer.querySelector('#timestamp').innerText
         )
         const messageHtml = renderer.querySelector('#message').innerHTML
         if (!messageHtml) {
           // Some items have no message (e.g. joining subscription), no need to
-          // display them.
+          // include them.
           return null
         }
         lastChat = {
+          id,
           ord,
           messageHtml,
         }
         return lastChat
       })
-      .filter((chat) => chat && chat.ord > latestChatOrd)
+      .filter((chat) => {
+        if (!chat) return
+        if (chat.ord >= lastCachedChat.ord) {
+          // Chats with larger ord are always newer. Chats with the same ord
+          // have at least one older chats that will be filtered out later.
+          return true
+        }
+        return false
+      })
   )
-  return { newer: chats, last: lastChat }
+
+  let newerChats = []
+  // There should be a same chat item because chats with the same ord are
+  // remained.
+  const hasSame = !!maybeNewerChats.find(
+    (chat) => chat.id === lastCachedChat.id
+  )
+  if (hasSame) {
+    // Newer chats are the chats after which has the same id of the last cached
+    // one.
+    let dropping = true
+    for (const chat of maybeNewerChats) {
+      if (dropping && chat.id === lastCachedChat.id) {
+        dropping = false
+      } else if (!dropping) {
+        newerChats.push(chat)
+      }
+    }
+  } else {
+    newerChats = maybeNewerChats
+  }
+  return { newer: newerChats, last: lastChat }
 }
 
 function timestampToOrd(timestamp) {

@@ -5,7 +5,7 @@ danmaku over a YouTube livestream video.
 
 ## Features
 
-- [ ] Danmaku display
+- [x] Danmaku display
   - [x] Display incoming live chat messages as danmaku over YouTube livestream
     videos
     - [x] Danmaku on default view
@@ -28,7 +28,9 @@ danmaku over a YouTube livestream video.
     - [ ] Color
       - [ ] Text color
       - [ ] Shadow color
+      - [ ] Transparency
     - [ ] Speed
+    - [ ] Throttle
     - [ ] Display area (upper 1/4, 1/2, full)
   - [ ] Live chat area
     - [ ] Toggle whether to move to the bottom of the video
