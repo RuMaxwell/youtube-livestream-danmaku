@@ -15,7 +15,7 @@ danmaku over a YouTube livestream video.
     - [ ] Display membership messages
   - [x] Move the live chat area to the bottom of the video
   - [x] Distribute simultaneous chat messages across multiple lines
-  - [ ] Distribute sequential chat messages that might overlap across multiple
+  - [x] Distribute sequential chat messages that might overlap across multiple
     lines
   - [x] Stop moving when the video is paused and resume when the video is played
 - [ ] Interractions
