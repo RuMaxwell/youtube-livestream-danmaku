@@ -20,6 +20,8 @@ danmaku over a YouTube livestream video.
   - [x] Stop moving when the video is paused and resume when the video is played
 - [ ] Interractions
 - [ ] Configurations
+  - [ ] Configuration panel
+  - [ ] Extension configurations
   - [ ] Danmaku
     - [ ] Font
       - [ ] Font family
@@ -30,7 +32,8 @@ danmaku over a YouTube livestream video.
       - [ ] Shadow color
       - [ ] Transparency
     - [ ] Speed
-    - [ ] Throttle
+    - [x] On/Off
+    - [ ] Density (all, no overlap, dense, moderate, sparse)
     - [ ] Display area (upper 1/4, 1/2, full)
   - [ ] Live chat area
     - [ ] Toggle whether to move to the bottom of the video

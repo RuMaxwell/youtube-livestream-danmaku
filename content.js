@@ -1,8 +1,17 @@
+const config = {
+  danmaku: {
+    on: true,
+  },
+}
+
 function initializeApp() {
   getLiveChatApp((liveChatApp) => {
     relocateLiveChat()
 
     const danmakuContainer = attachDanmakuContainer()
+
+    watchSettingsMenuChange()
+    const danmakuConfigPanel = attachDanmakuConfigPanel()
 
     const videoElement = getVideoElement()
     watchVideoResize(videoElement)
@@ -98,7 +107,10 @@ const danmakuContainerId = 'danmaku-container'
 
 function attachDanmakuContainer() {
   console.log('Attaching danmaku container')
-  const playerContainer = document.querySelector('#player-container') //?.querySelector('.ytp-player-content')
+  // const playerContainer = document.querySelector('#player-container')
+  const playerContent = document.querySelector(
+    '#player-container .ytp-player-content'
+  )
   const danmakuContainer = document.createElement('div')
   danmakuContainer.id = danmakuContainerId
   danmakuContainer.style.position = 'absolute'
@@ -108,8 +120,8 @@ function attachDanmakuContainer() {
   danmakuContainer.style.height = '100%'
   danmakuContainer.style.overflow = 'hidden'
   danmakuContainer.style.pointerEvents = 'none'
-  danmakuContainer.style.zIndex = '2'
-  playerContainer.appendChild(danmakuContainer)
+  danmakuContainer.style.zIndex = '10'
+  playerContent.parentElement.insertBefore(danmakuContainer, playerContent)
   return danmakuContainer
 }
 
@@ -120,6 +132,132 @@ function getDanmakuContainer() {
 function detachDanmakuContainer() {
   console.log('Detaching danmaku container')
   getDanmakuContainer()?.remove()
+}
+
+let isSettingsMenuOpen = false
+let settingsMenuChangeObserver
+
+function watchSettingsMenuChange() {
+  const settingsMenuEl = document.querySelector('.ytp-settings-menu')
+  settingsMenuChangeObserver = new MutationObserver((mutationsList) => {
+    isSettingsMenuOpen = settingsMenuEl.style.display !== 'none'
+  })
+  settingsMenuChangeObserver.observe(settingsMenuEl, {
+    attributes: true,
+    attributeFilter: ['style'],
+  })
+}
+
+function unwatchSettingsMenuChange() {
+  settingsMenuChangeObserver?.disconnect()
+  settingsMenuChangeObserver = undefined
+}
+
+const danmakuConfigPanelId = 'danmaku-config-panel'
+const danmakuConfigPanelToggleId = 'danmaku-config-panel-toggle'
+const danmakuOffSvg =
+  '<svg class="icon" viewBox="-224 -224 1440 1440" xmlns="http://www.w3.org/2000/svg" width="44" height="48"><path d="M558.545 721.455H155.927c-32.582 0-62.836-30.255-62.836-62.837V318.836c0-32.581 30.254-62.836 62.836-62.836h572.51c32.581 0 62.836 30.255 62.836 62.836v30.255c0 13.964 9.309 23.273 23.272 23.273s23.273-9.31 23.273-23.273v-30.255c0-58.181-51.2-109.381-109.382-109.381H155.927c-58.182 0-109.382 51.2-109.382 109.381v339.782C46.545 716.8 97.745 768 155.927 768h402.618c13.964 0 23.273-9.31 23.273-23.273s-9.309-23.272-23.273-23.272" fill="#fff"/><path d="M325.818 349.09h46.546v46.546h-46.546zm93.091 0h186.182v46.546H418.909zM186.182 465.456h46.545V512h-46.545zm93.09 0h186.183V512H279.273zm0 116.363h46.546v46.546h-46.545zm93.092 0h186.181v46.546H372.364zm430.545-116.363c-95.418 0-174.545 79.127-174.545 174.545s79.127 174.545 174.545 174.545S977.455 735.418 977.455 640s-79.128-174.545-174.546-174.545m0 302.545c-69.818 0-128-58.182-128-128 0-23.273 6.982-44.218 16.291-62.836l174.545 174.545C847.127 761.02 826.182 768 802.91 768m97.746-46.545-179.2-179.2C744.728 523.636 772.656 512 802.91 512c69.818 0 128 58.182 128 128 0 30.255-11.636 60.51-30.254 81.455" fill="#fff"/></svg>'
+const danmakuOnSvg =
+  '<svg class="icon" viewBox="-224 -224 1440 1440" xmlns="http://www.w3.org/2000/svg" width="44" height="48"><path d="M558.545 721.455H155.927c-32.582 0-62.836-30.255-62.836-62.837V318.836c0-32.581 30.254-62.836 62.836-62.836h572.51c32.581 0 62.836 30.255 62.836 62.836v30.255c0 13.964 9.309 23.273 23.272 23.273s23.273-9.31 23.273-23.273v-30.255c0-58.181-51.2-109.381-109.382-109.381H155.927c-58.182 0-109.382 51.2-109.382 109.381v339.782C46.545 716.8 97.745 768 155.927 768h402.618c13.964 0 23.273-9.31 23.273-23.273s-9.309-23.272-23.273-23.272" fill="#fff"/><path d="M325.818 349.09h46.546v46.546h-46.546zm93.091 0h186.182v46.546H418.909zM186.182 465.456h46.545V512h-46.545zm93.09 0h186.183V512H279.273zm93.092 116.363h186.181v46.546H372.364zm-93.091 0h46.545v46.546h-46.545zm523.636-116.363c-95.418 0-174.545 79.127-174.545 174.545s79.127 174.545 174.545 174.545S977.455 735.418 977.455 640s-79.128-174.545-174.546-174.545m0 302.545c-69.818 0-128-58.182-128-128s58.182-128 128-128 128 58.182 128 128-58.182 128-128 128" fill="#fff"/><path d="M900.655 586.473c-9.31-9.31-23.273-9.31-32.582 0l-81.455 81.454-48.873-48.872c-9.309-9.31-23.272-9.31-32.581 0-9.31 9.309-9.31 23.272 0 32.581l65.163 65.164c9.31 9.31 23.273 9.31 32.582 0l97.746-97.745c9.309-9.31 9.309-23.273 0-32.582" fill="#fff"/></svg>'
+const danmakuConfigButtonText = 'Danmaku Settings'
+
+function attachDanmakuConfigPanel() {
+  getPlayerRightControls((controls) => {
+    const toggle = document.createElement('button')
+    toggle.id = danmakuConfigPanelToggleId
+    toggle.classList.add('ytp-subtitles-button', 'ytp-button')
+    toggle.dataset.priority = '11'
+    toggle.ariaKeyShortcuts = 'd'
+    toggle.title = danmakuConfigButtonText
+    toggle.innerHTML = danmakuOnSvg
+
+    const settingsButton = controls.querySelector('.ytp-settings-button')
+    if (settingsButton) {
+      controls.insertBefore(toggle, settingsButton)
+    } else {
+      controls.prepend(toggle)
+    }
+
+    toggle.addEventListener('click', (e) => {
+      e.preventDefault()
+      toggleDanmaku(!config.danmaku.on)
+    })
+
+    let isDanmakuConfigPanelOpen = false
+    let cancelKeepDisplay
+    toggle.addEventListener('mouseenter', () => {
+      if (isDanmakuConfigPanelOpen || isSettingsMenuOpen) {
+        // Prevents tooltip from showing when the settings menu or the danmaku
+        // config panel is open.
+        return
+      }
+
+      const toggleRect = toggle.getBoundingClientRect()
+      const midX = toggleRect.left + toggleRect.width / 2
+      const tooltipEl = document.querySelector('.ytp-tooltip')
+      const tooltipTextEl = tooltipEl?.querySelector('.ytp-tooltip-text')
+      if (!tooltipEl || !tooltipTextEl) return
+      tooltipTextEl.innerHTML = danmakuConfigButtonText
+      tooltipEl.style.left = px(
+        midX - tooltipTextEl.getBoundingClientRect().width / 2
+      )
+      cancelKeepDisplay = keepDisplayForShortTime(tooltipEl)
+    })
+    toggle.addEventListener('mouseleave', () => {
+      cancelKeepDisplay?.()
+      const tooltipEl = document.querySelector('.ytp-tooltip')
+      const tooltipTextEl = tooltipEl?.querySelector('.ytp-tooltip-text')
+      if (!tooltipEl || !tooltipTextEl) return
+      tooltipEl.style.display = 'none'
+    })
+  })
+}
+
+function keepDisplayForShortTime(el) {
+  const startTime = Date.now()
+  let cancelled = false
+  function cancel() {
+    cancelled = true
+  }
+  function inner() {
+    if (cancelled || Date.now() - startTime > 200) {
+      return
+    }
+    el.style.removeProperty('display')
+    requestAnimationFrame(inner)
+  }
+  inner()
+
+  return cancel
+}
+
+function getDanmakuConfigPanelToggle() {
+  return document.querySelector('#' + danmakuConfigPanelToggleId)
+}
+
+function toggleDanmaku(on) {
+  config.danmaku.on = on
+  const danmakuToggle = getDanmakuConfigPanelToggle()
+  if (danmakuToggle) {
+    danmakuToggle.innerHTML = on ? danmakuOnSvg : danmakuOffSvg
+  }
+  const danmakuContainer = getDanmakuContainer()
+  if (danmakuContainer) {
+    danmakuContainer.style.visibility = on ? 'visible' : 'hidden'
+  }
+}
+
+function getPlayerRightControls(then) {
+  function inner() {
+    const controls = document.querySelector('.ytp-right-controls')
+    if (controls) {
+      then(controls)
+      return
+    }
+    requestAnimationFrame(inner)
+  }
+
+  inner()
 }
 
 function getVideoElement() {
@@ -172,6 +310,8 @@ let isFirstChange = true
 let chatChangesObserver
 
 function watchChatChanges(liveChatApp, danmakuContainer) {
+  unwatchChatChanges()
+
   // The cache of the previous incoming chats.
   let chats = []
   isFirstChange = true
@@ -467,6 +607,8 @@ window.addEventListener('unload', () => {
   unwatchChatChanges()
   unwatchVideoResize()
   unwatchVideoPausePlay(getVideoElement())
+
+  unwatchSettingsMenuChange()
   unwatchPlayerChanges()
   console.log('YouTube Livestream Danmaku extension unloaded')
 })
