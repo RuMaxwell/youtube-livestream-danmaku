@@ -28,11 +28,15 @@
 }
 
 .danmaku-config-option > input[type='text'],
-.danmaku-config-option > input[type='number'] {
+.danmaku-config-option > input[type='number'],
+.danmaku-config-option > select {
   background-color: transparent;
-  width: 3em;
   text-align: right;
   color: #fff;
   border: none;
   outline: none;
+}
+
+.danmaku-config-option > input[type='checkbox'] {
+  margin-right: 1.2em;
 }

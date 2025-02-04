@@ -1,11 +1,31 @@
 'use strict'
 
+enum DanmakuDensity {
+  all = 'all',
+  noOverlap = 'noOverlap',
+  dense = 'dense',
+  moderate = 'moderate',
+  sparse = 'sparse',
+}
+
+const extensionConfig = {
+  getLiveAppTimeout: 10000,
+  danmakuDensityLimits: {
+    [DanmakuDensity.all]: 1,
+    [DanmakuDensity.noOverlap]: 1,
+    [DanmakuDensity.dense]: 0.75,
+    [DanmakuDensity.moderate]: 0.5,
+    [DanmakuDensity.sparse]: 0.25,
+  },
+}
+
 const config = {
   danmaku: {
     on: true,
     speed: 100, // px per second
     fontSize: 20, // px
     lineGap: 20, // px
+    density: DanmakuDensity.noOverlap,
   },
 }
 
@@ -17,6 +37,25 @@ const configLabel = {
       speed: 'Speed',
       fontSize: 'Font size',
       lineGap: 'Line gap',
+      density: 'Density',
+      densityTips:
+        'The density config determines how dense the danmaku are. Density lower than "All" may drop some messages.',
+      densityOption: {
+        [DanmakuDensity.all]: 'All',
+        [DanmakuDensity.noOverlap]: 'No overlap',
+        [DanmakuDensity.dense]: 'Dense',
+        [DanmakuDensity.moderate]: 'Moderate',
+        [DanmakuDensity.sparse]: 'Sparse',
+      },
+      densityOptionTips: {
+        [DanmakuDensity.all]:
+          'Display all messages. If too many messages crowd in a very short amount of time, they may overlap.',
+        [DanmakuDensity.noOverlap]:
+          'Display all messages unless they are possible to overlap.',
+        [DanmakuDensity.dense]: 'Keep most of the messages.',
+        [DanmakuDensity.moderate]: 'Keep about a half of the messages.',
+        [DanmakuDensity.sparse]: 'Keep a few of the messages.',
+      },
     },
   },
 }['en']
@@ -60,11 +99,15 @@ function getLiveChatApp(then: (liveChatApp: any) => void) {
     const liveChatApp =
       liveChatAppIFrame?.document?.querySelector('yt-live-chat-app')
     if (!liveChatAppIFrame || !liveChatApp) {
-      if (Date.now() - startTime > 10000) {
+      if (Date.now() - startTime > extensionConfig.getLiveAppTimeout) {
         console.log(
-          'Failed to find live chat container after 10 seconds.' +
+          `Failed to find live chat container after ${
+            extensionConfig.getLiveAppTimeout / 1000
+          } seconds.` +
             'If this is a livestream video, please make sure the live chat replay can be displayed.' +
-            'If it actually loaded after 10 seconds, you can adjust the timeout in the extension settings.'
+            `If it actually loaded after ${
+              extensionConfig.getLiveAppTimeout / 1000
+            } seconds, you can adjust the timeout in the extension settings.`
         )
       } else {
         requestAnimationFrame(inner)
@@ -284,8 +327,8 @@ function getDanmakuConfigPanelToggle() {
   return document.querySelector('#' + danmakuConfigPanelToggleId)
 }
 
-function toggleDanmakuConfigPanel() {
-  const isOpen = !isDanmakuConfigPanelOpen
+function toggleDanmakuConfigPanel(on?: boolean) {
+  const isOpen = on === undefined ? !isDanmakuConfigPanelOpen : on
   isDanmakuConfigPanelOpen = isOpen
   const panel = document.querySelector(
     '#' + danmakuConfigPanelId
@@ -344,6 +387,7 @@ function makeDanmakuConfigPanelContent() {
         speedOptionInput.step = '50'
         speedOptionInput.min = '50'
         speedOptionInput.max = '950'
+        speedOptionInput.style.width = '3em'
         speedOptionInput.addEventListener('keydown', (e) => {
           e.stopPropagation()
         })
@@ -369,6 +413,7 @@ function makeDanmakuConfigPanelContent() {
         fontSizeOptionInput.step = '2'
         fontSizeOptionInput.min = '2'
         fontSizeOptionInput.max = '100'
+        fontSizeOptionInput.style.width = '3em'
         fontSizeOptionInput.addEventListener('keydown', (e) => {
           e.stopPropagation()
         })
@@ -394,6 +439,7 @@ function makeDanmakuConfigPanelContent() {
         lineGapOptionInput.step = '2'
         lineGapOptionInput.min = '0'
         lineGapOptionInput.max = '100'
+        lineGapOptionInput.style.width = '3em'
         lineGapOptionInput.addEventListener('keydown', (e) => {
           e.stopPropagation()
         })
@@ -405,12 +451,43 @@ function makeDanmakuConfigPanelContent() {
 
         lineGapOption.append(lineGapOptionLabel, lineGapOptionInput)
       }
+      // Density option
+      const densityOption = document.createElement('label')
+      densityOption.classList.add('danmaku-config-option')
+      {
+        // Option label
+        const densityOptionLabel = document.createElement('span')
+        densityOptionLabel.innerText = configLabel.danmaku.density
+        // Option input
+        const densityOptionInput = document.createElement('select')
+        Object.values(DanmakuDensity).forEach((key) => {
+          const option = document.createElement('option')
+          option.value = key
+          option.innerText =
+            configLabel.danmaku.densityOption[
+              key as keyof typeof DanmakuDensity
+            ]
+          densityOptionInput.appendChild(option)
+        })
+        densityOptionInput.value = config.danmaku.density
+        densityOptionInput.addEventListener('change', (e) => {
+          config.danmaku.density =
+            DanmakuDensity[
+              (e.target as HTMLSelectElement | null)
+                ?.value as keyof typeof DanmakuDensity
+            ] || DanmakuDensity.all
+          toggleDanmakuConfigPanel(false)
+        })
+
+        densityOption.append(densityOptionLabel, densityOptionInput)
+      }
       danmakuGroup.append(
         danmakuGroupLabel,
         onOffOption,
         speedOption,
         fontSizeOption,
-        lineGapOption
+        lineGapOption,
+        densityOption
       )
     }
     content.append(danmakuGroup)
@@ -634,7 +711,10 @@ function timestampToOrd(timestamp: string) {
   return parseInt(mins) * 60 + sign * parseInt(secs)
 }
 
-function makeDanmakuElements(chats: Chat[], danmakuContainer: HTMLElement) {
+function makeDanmakuElements(
+  chats: Chat[],
+  danmakuContainer: HTMLElement
+): HTMLElement[] {
   // Gets the the right position of the rightmost existing element of every line
   // from top to bottom. The indices of this array are the line indices of the
   // elements. An array is used so that the iteration will be from top to
@@ -666,12 +746,17 @@ function makeDanmakuElements(chats: Chat[], danmakuContainer: HTMLElement) {
 
   let nextLineIndex = -1
   let bottomOverflowStartIndex: number | undefined = undefined
-  return chats.map((chat, i) => {
+  const danmakuElements: HTMLElement[] = []
+  for (const [i, chat] of chats.entries()) {
     // There have been elements that are placed in spite of overlapping because
     // of overflow, so just put the next under it.
     if (bottomOverflowStartIndex !== undefined) {
       nextLineIndex = i - bottomOverflowStartIndex
-      return makeDanmakuElement(chat, nextLineIndex)
+      pushDanmakuElement(
+        danmakuElements,
+        makeDanmakuElement(chat, nextLineIndex)
+      )
+      continue
     }
 
     if (nextLineIndex >= rightmostShape.length) {
@@ -716,15 +801,31 @@ function makeDanmakuElements(chats: Chat[], danmakuContainer: HTMLElement) {
         config.danmaku.fontSize >
       containerRect.height
     ) {
-      // If the new element will be placed out of the container, place it from
+      // If the new element will be placed out of the container...
+      if (config.danmaku.density !== DanmakuDensity.all) {
+        // If density is not "all", avoid overlapping.
+        break
+      }
+
+      // place it from
       // the top. In this case, there are too many elements, so overlapping is
       // not avoidable.
       nextLineIndex = 0
       bottomOverflowStartIndex = i
     }
 
-    return makeDanmakuElement(chat, nextLineIndex)
-  })
+    pushDanmakuElement(danmakuElements, makeDanmakuElement(chat, nextLineIndex))
+  }
+  return danmakuElements
+}
+
+function pushDanmakuElement(array: HTMLElement[], item: HTMLElement): void {
+  // Uses the density config to decide whether to push the element.
+  if (
+    Math.random() < extensionConfig.danmakuDensityLimits[config.danmaku.density]
+  ) {
+    array.push(item)
+  }
 }
 
 function px(value: number) {
