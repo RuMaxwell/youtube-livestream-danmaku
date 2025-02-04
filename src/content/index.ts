@@ -283,12 +283,18 @@ function getDanmakuConfigPanelToggle() {
 function toggleDanmakuConfigPanel() {
   const isOpen = !isDanmakuConfigPanelOpen
   isDanmakuConfigPanelOpen = isOpen
+  const panel = document.querySelector(
+    '#' + danmakuConfigPanelId
+  ) as HTMLElement
+  if (!panel) return
+  panel.style.display = isOpen ? 'block' : 'none'
 }
 
 function makeDanmakuConfigPanel() {
   const panel = document.createElement('div')
   panel.id = danmakuConfigPanelId
   panel.classList.add('ytp-popup', 'ytp-settings-menu')
+  panel.style.display = 'none'
   panel.appendChild(makeDanmakuConfigPanelContent())
   return panel
 }
