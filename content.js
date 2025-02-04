@@ -1,8 +1,25 @@
+'use strict'
+
 const config = {
   danmaku: {
     on: true,
+    speed: 100, // px per second
+    fontSize: 20, // px
+    lineGap: 20, // px
   },
 }
+
+const configLabel = {
+  en: {
+    danmaku: {
+      self: 'Danmaku',
+      onOff: 'On/Off',
+      speed: 'Speed',
+      fontSize: 'Font size',
+      lineGap: 'Line gap',
+    },
+  },
+}['en']
 
 function initializeApp() {
   getLiveChatApp((liveChatApp) => {
@@ -139,6 +156,11 @@ let settingsMenuChangeObserver
 
 function watchSettingsMenuChange() {
   const settingsMenuEl = document.querySelector('.ytp-settings-menu')
+  if (!settingsMenuEl) {
+    throw new Error('Settings menu not found')
+  }
+  const danmakuConfigPanel = makeDanmakuConfigPanel()
+  settingsMenuEl.insertAdjacentElement('afterend', danmakuConfigPanel)
   settingsMenuChangeObserver = new MutationObserver((mutationsList) => {
     isSettingsMenuOpen = settingsMenuEl.style.display !== 'none'
   })
@@ -156,21 +178,18 @@ function unwatchSettingsMenuChange() {
 const danmakuConfigPanelId = 'danmaku-config-panel'
 const danmakuConfigPanelToggleId = 'danmaku-config-panel-toggle'
 const danmakuOffSvg =
-  '<svg class="icon" viewBox="-224 -224 1440 1440" xmlns="http://www.w3.org/2000/svg" width="44" height="48"><path d="M558.545 721.455H155.927c-32.582 0-62.836-30.255-62.836-62.837V318.836c0-32.581 30.254-62.836 62.836-62.836h572.51c32.581 0 62.836 30.255 62.836 62.836v30.255c0 13.964 9.309 23.273 23.272 23.273s23.273-9.31 23.273-23.273v-30.255c0-58.181-51.2-109.381-109.382-109.381H155.927c-58.182 0-109.382 51.2-109.382 109.381v339.782C46.545 716.8 97.745 768 155.927 768h402.618c13.964 0 23.273-9.31 23.273-23.273s-9.309-23.272-23.273-23.272" fill="#fff"/><path d="M325.818 349.09h46.546v46.546h-46.546zm93.091 0h186.182v46.546H418.909zM186.182 465.456h46.545V512h-46.545zm93.09 0h186.183V512H279.273zm0 116.363h46.546v46.546h-46.545zm93.092 0h186.181v46.546H372.364zm430.545-116.363c-95.418 0-174.545 79.127-174.545 174.545s79.127 174.545 174.545 174.545S977.455 735.418 977.455 640s-79.128-174.545-174.546-174.545m0 302.545c-69.818 0-128-58.182-128-128 0-23.273 6.982-44.218 16.291-62.836l174.545 174.545C847.127 761.02 826.182 768 802.91 768m97.746-46.545-179.2-179.2C744.728 523.636 772.656 512 802.91 512c69.818 0 128 58.182 128 128 0 30.255-11.636 60.51-30.254 81.455" fill="#fff"/></svg>'
+  '<svg class="icon" viewBox="-224 -224 1440 1440" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><path d="M558.545 721.455H155.927c-32.582 0-62.836-30.255-62.836-62.837V318.836c0-32.581 30.254-62.836 62.836-62.836h572.51c32.581 0 62.836 30.255 62.836 62.836v30.255c0 13.964 9.309 23.273 23.272 23.273s23.273-9.31 23.273-23.273v-30.255c0-58.181-51.2-109.381-109.382-109.381H155.927c-58.182 0-109.382 51.2-109.382 109.381v339.782C46.545 716.8 97.745 768 155.927 768h402.618c13.964 0 23.273-9.31 23.273-23.273s-9.309-23.272-23.273-23.272" fill="#fff"/><path d="M325.818 349.09h46.546v46.546h-46.546zm93.091 0h186.182v46.546H418.909zM186.182 465.456h46.545V512h-46.545zm93.09 0h186.183V512H279.273zm0 116.363h46.546v46.546h-46.545zm93.092 0h186.181v46.546H372.364zm430.545-116.363c-95.418 0-174.545 79.127-174.545 174.545s79.127 174.545 174.545 174.545S977.455 735.418 977.455 640s-79.128-174.545-174.546-174.545m0 302.545c-69.818 0-128-58.182-128-128 0-23.273 6.982-44.218 16.291-62.836l174.545 174.545C847.127 761.02 826.182 768 802.91 768m97.746-46.545-179.2-179.2C744.728 523.636 772.656 512 802.91 512c69.818 0 128 58.182 128 128 0 30.255-11.636 60.51-30.254 81.455" fill="#fff"/></svg>'
 const danmakuOnSvg =
-  '<svg class="icon" viewBox="-224 -224 1440 1440" xmlns="http://www.w3.org/2000/svg" width="44" height="48"><path d="M558.545 721.455H155.927c-32.582 0-62.836-30.255-62.836-62.837V318.836c0-32.581 30.254-62.836 62.836-62.836h572.51c32.581 0 62.836 30.255 62.836 62.836v30.255c0 13.964 9.309 23.273 23.272 23.273s23.273-9.31 23.273-23.273v-30.255c0-58.181-51.2-109.381-109.382-109.381H155.927c-58.182 0-109.382 51.2-109.382 109.381v339.782C46.545 716.8 97.745 768 155.927 768h402.618c13.964 0 23.273-9.31 23.273-23.273s-9.309-23.272-23.273-23.272" fill="#fff"/><path d="M325.818 349.09h46.546v46.546h-46.546zm93.091 0h186.182v46.546H418.909zM186.182 465.456h46.545V512h-46.545zm93.09 0h186.183V512H279.273zm93.092 116.363h186.181v46.546H372.364zm-93.091 0h46.545v46.546h-46.545zm523.636-116.363c-95.418 0-174.545 79.127-174.545 174.545s79.127 174.545 174.545 174.545S977.455 735.418 977.455 640s-79.128-174.545-174.546-174.545m0 302.545c-69.818 0-128-58.182-128-128s58.182-128 128-128 128 58.182 128 128-58.182 128-128 128" fill="#fff"/><path d="M900.655 586.473c-9.31-9.31-23.273-9.31-32.582 0l-81.455 81.454-48.873-48.872c-9.309-9.31-23.272-9.31-32.581 0-9.31 9.309-9.31 23.272 0 32.581l65.163 65.164c9.31 9.31 23.273 9.31 32.582 0l97.746-97.745c9.309-9.31 9.309-23.273 0-32.582" fill="#fff"/></svg>'
+  '<svg class="icon" viewBox="-224 -224 1440 1440" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><path d="M558.545 721.455H155.927c-32.582 0-62.836-30.255-62.836-62.837V318.836c0-32.581 30.254-62.836 62.836-62.836h572.51c32.581 0 62.836 30.255 62.836 62.836v30.255c0 13.964 9.309 23.273 23.272 23.273s23.273-9.31 23.273-23.273v-30.255c0-58.181-51.2-109.381-109.382-109.381H155.927c-58.182 0-109.382 51.2-109.382 109.381v339.782C46.545 716.8 97.745 768 155.927 768h402.618c13.964 0 23.273-9.31 23.273-23.273s-9.309-23.272-23.273-23.272" fill="#fff"/><path d="M325.818 349.09h46.546v46.546h-46.546zm93.091 0h186.182v46.546H418.909zM186.182 465.456h46.545V512h-46.545zm93.09 0h186.183V512H279.273zm93.092 116.363h186.181v46.546H372.364zm-93.091 0h46.545v46.546h-46.545zm523.636-116.363c-95.418 0-174.545 79.127-174.545 174.545s79.127 174.545 174.545 174.545S977.455 735.418 977.455 640s-79.128-174.545-174.546-174.545m0 302.545c-69.818 0-128-58.182-128-128s58.182-128 128-128 128 58.182 128 128-58.182 128-128 128" fill="#fff"/><path d="M900.655 586.473c-9.31-9.31-23.273-9.31-32.582 0l-81.455 81.454-48.873-48.872c-9.309-9.31-23.272-9.31-32.581 0-9.31 9.309-9.31 23.272 0 32.581l65.163 65.164c9.31 9.31 23.273 9.31 32.582 0l97.746-97.745c9.309-9.31 9.309-23.273 0-32.582" fill="#fff"/></svg>'
 const danmakuConfigButtonText = 'Danmaku Settings'
+
+let isDanmakuConfigPanelOpen = false
 
 function attachDanmakuConfigPanel() {
   getPlayerRightControls((controls) => {
-    const toggle = document.createElement('button')
-    toggle.id = danmakuConfigPanelToggleId
-    toggle.classList.add('ytp-subtitles-button', 'ytp-button')
-    toggle.dataset.priority = '11'
-    toggle.ariaKeyShortcuts = 'd'
-    toggle.title = danmakuConfigButtonText
-    toggle.innerHTML = danmakuOnSvg
+    const toggle = makeDanmakuConfigPanelToggleButton()
 
+    // Inserts the toggle button before the settings button.
     const settingsButton = controls.querySelector('.ytp-settings-button')
     if (settingsButton) {
       controls.insertBefore(toggle, settingsButton)
@@ -180,11 +199,12 @@ function attachDanmakuConfigPanel() {
 
     toggle.addEventListener('click', (e) => {
       e.preventDefault()
-      toggleDanmaku(!config.danmaku.on)
+      toggleDanmakuConfigPanel()
     })
 
-    let isDanmakuConfigPanelOpen = false
     let cancelKeepDisplay
+
+    // Displays the tooltip when the mouse enters the toggle button.
     toggle.addEventListener('mouseenter', () => {
       if (isDanmakuConfigPanelOpen || isSettingsMenuOpen) {
         // Prevents tooltip from showing when the settings menu or the danmaku
@@ -203,6 +223,8 @@ function attachDanmakuConfigPanel() {
       )
       cancelKeepDisplay = keepDisplayForShortTime(tooltipEl)
     })
+
+    // Hides the tooltip when the mouse leaves the toggle button.
     toggle.addEventListener('mouseleave', () => {
       cancelKeepDisplay?.()
       const tooltipEl = document.querySelector('.ytp-tooltip')
@@ -231,11 +253,150 @@ function keepDisplayForShortTime(el) {
   return cancel
 }
 
+function makeDanmakuConfigPanelToggleButton() {
+  const toggle = document.createElement('button')
+  toggle.id = danmakuConfigPanelToggleId
+  toggle.classList.add('ytp-subtitles-button', 'ytp-button')
+  toggle.dataset.priority = '11'
+  toggle.ariaKeyShortcuts = 'd'
+  toggle.title = danmakuConfigButtonText
+  toggle.innerHTML = danmakuOnSvg
+  return toggle
+}
+
 function getDanmakuConfigPanelToggle() {
   return document.querySelector('#' + danmakuConfigPanelToggleId)
 }
 
-function toggleDanmaku(on) {
+function toggleDanmakuConfigPanel() {
+  const isOpen = !isDanmakuConfigPanelOpen
+  isDanmakuConfigPanelOpen = isOpen
+}
+
+function makeDanmakuConfigPanel() {
+  const panel = document.createElement('div')
+  panel.id = danmakuConfigPanelId
+  panel.classList.add('ytp-popup', 'ytp-settings-menu')
+  panel.appendChild(makeDanmakuConfigPanelContent())
+  return panel
+}
+
+function setStyle(el, style) {
+  Object.entries(style).forEach(([key, value]) => {
+    el.style[key] = value
+  })
+}
+
+function makeDanmakuConfigPanelContent() {
+  const content = document.createElement('div')
+  content.classList.add('danmaku-config-panel-content')
+  {
+    // Danmaku group
+    const danmakuGroup = document.createElement('div')
+    danmakuGroup.classList.add('danmaku-config-group')
+    {
+      // Group label
+      const danmakuGroupLabel = document.createElement('div')
+      danmakuGroupLabel.classList.add('danmaku-config-group-label')
+      danmakuGroupLabel.innerHTML = configLabel.danmaku.self
+      // On/Off option
+      const onOffOption = document.createElement('label')
+      onOffOption.classList.add('danmaku-config-option')
+      {
+        // Option label
+        const onOffOptionLabel = document.createElement('span')
+        onOffOptionLabel.innerText = configLabel.danmaku.onOff
+        // Option input
+        const onOffOptionInput = document.createElement('input')
+        onOffOptionInput.type = 'checkbox'
+        onOffOptionInput.checked = config.danmaku.on
+        onOffOptionInput.addEventListener('change', toggleDanmaku)
+
+        onOffOption.append(onOffOptionLabel, onOffOptionInput)
+      }
+      // Speed option
+      const speedOption = document.createElement('label')
+      speedOption.classList.add('danmaku-config-option')
+      {
+        // Option label
+        const speedOptionLabel = document.createElement('span')
+        speedOptionLabel.innerText = configLabel.danmaku.speed
+        // Option input
+        const speedOptionInput = document.createElement('input')
+        speedOptionInput.type = 'number'
+        speedOptionInput.value = config.danmaku.speed
+        speedOptionInput.step = 50
+        speedOptionInput.min = 50
+        speedOptionInput.max = 950
+        speedOptionInput.addEventListener('keydown', (e) => {
+          e.stopPropagation()
+        })
+        speedOptionInput.addEventListener('input', (e) => {
+          config.danmaku.speed = parseInt(e.target.value)
+        })
+
+        speedOption.append(speedOptionLabel, speedOptionInput)
+      }
+      // Font size option
+      const fontSizeOption = document.createElement('label')
+      fontSizeOption.classList.add('danmaku-config-option')
+      {
+        // Option label
+        const fontSizeOptionLabel = document.createElement('span')
+        fontSizeOptionLabel.innerText = configLabel.danmaku.fontSize
+        // Option input
+        const fontSizeOptionInput = document.createElement('input')
+        fontSizeOptionInput.type = 'number'
+        fontSizeOptionInput.value = config.danmaku.fontSize
+        fontSizeOptionInput.step = 2
+        fontSizeOptionInput.min = 2
+        fontSizeOptionInput.max = 100
+        fontSizeOptionInput.addEventListener('keydown', (e) => {
+          e.stopPropagation()
+        })
+        fontSizeOptionInput.addEventListener('input', (e) => {
+          config.danmaku.fontSize = parseInt(e.target.value)
+        })
+
+        fontSizeOption.append(fontSizeOptionLabel, fontSizeOptionInput)
+      }
+      // Line gap option
+      const lineGapOption = document.createElement('label')
+      lineGapOption.classList.add('danmaku-config-option')
+      {
+        // Option label
+        const lineGapOptionLabel = document.createElement('span')
+        lineGapOptionLabel.innerText = configLabel.danmaku.lineGap
+        // Option input
+        const lineGapOptionInput = document.createElement('input')
+        lineGapOptionInput.type = 'number'
+        lineGapOptionInput.value = config.danmaku.lineGap
+        lineGapOptionInput.step = 2
+        lineGapOptionInput.min = 0
+        lineGapOptionInput.max = 100
+        lineGapOptionInput.addEventListener('keydown', (e) => {
+          e.stopPropagation()
+        })
+        lineGapOptionInput.addEventListener('input', (e) => {
+          config.danmaku.lineGap = parseInt(e.target.value)
+        })
+
+        lineGapOption.append(lineGapOptionLabel, lineGapOptionInput)
+      }
+      danmakuGroup.append(
+        danmakuGroupLabel,
+        onOffOption,
+        speedOption,
+        fontSizeOption
+      )
+    }
+    content.append(danmakuGroup)
+  }
+  return content
+}
+
+function toggleDanmaku() {
+  const on = !config.danmaku.on
   config.danmaku.on = on
   const danmakuToggle = getDanmakuConfigPanelToggle()
   if (danmakuToggle) {
@@ -442,9 +603,6 @@ function timestampToOrd(timestamp) {
   return parseInt(mins) * 60 + sign * parseInt(secs)
 }
 
-const danmakuFontSize = 20
-const danmakuLineGap = 20
-
 function makeDanmakuElements(chats, danmakuContainer) {
   // Gets the the right position of the rightmost existing element of every line
   // from top to bottom. The indices of this array are the line indices of the
@@ -461,7 +619,8 @@ function makeDanmakuElements(chats, danmakuContainer) {
   for (const currentEl of danmakuContainer.children) {
     const currentRect = currentEl.getBoundingClientRect()
     const lineIndex = Math.round(
-      (currentRect.top - containerRect.top) / (danmakuFontSize + danmakuLineGap)
+      (currentRect.top - containerRect.top) /
+        (config.danmaku.fontSize + config.danmaku.lineGap)
     )
     const previousRight = rightmostShape[lineIndex]
     const currentRight = currentRect.left + currentRect.width
@@ -509,7 +668,7 @@ function makeDanmakuElements(chats, danmakuContainer) {
         // from the right edge.
         if (
           right <=
-          containerRect.left + containerRect.width - danmakuFontSize
+          containerRect.left + containerRect.width - config.danmaku.fontSize
         ) {
           nextLineIndex = lineIndex
           break
@@ -522,7 +681,8 @@ function makeDanmakuElements(chats, danmakuContainer) {
       }
     }
     if (
-      nextLineIndex * (danmakuFontSize + danmakuLineGap) + danmakuFontSize >
+      nextLineIndex * (config.danmaku.fontSize + config.danmaku.lineGap) +
+        config.danmaku.fontSize >
       containerRect.height
     ) {
       // If the new element will be placed out of the container, place it from
@@ -545,15 +705,17 @@ function makeDanmakuElement(chat, lineIndex) {
   // danmakuElement.innerText = chat.message
   danmakuElement.innerHTML = chat.messageHtml
   danmakuElement.querySelectorAll('img').forEach((img) => {
-    img.style.maxHeight = px(danmakuFontSize)
-    img.style.maxWidth = px(danmakuFontSize)
+    img.style.maxHeight = px(config.danmaku.fontSize)
+    // img.style.maxWidth = px(config.danmaku.fontSize)
     img.style.objectFit = 'contain'
   })
   danmakuElement.style.position = 'absolute'
-  danmakuElement.style.top = px(lineIndex * (danmakuFontSize + danmakuLineGap))
+  danmakuElement.style.top = px(
+    lineIndex * (config.danmaku.fontSize + config.danmaku.lineGap)
+  )
   danmakuElement.style.left = px(window.innerWidth)
   danmakuElement.style.whiteSpace = 'nowrap'
-  danmakuElement.style.fontSize = px(danmakuFontSize)
+  danmakuElement.style.fontSize = px(config.danmaku.fontSize)
   danmakuElement.style.color = 'white'
   danmakuElement.style.textShadow = '0 0 5px black'
   return danmakuElement
@@ -564,8 +726,6 @@ function animateDanmakuElements(danmakuElements) {
     animateDanmakuElement(element)
   })
 }
-
-const danmakuSpeed = 100 // px per second
 
 function animateDanmakuElement(danmakuElement) {
   let lastTime = null
@@ -589,7 +749,7 @@ function animateDanmakuElement(danmakuElement) {
     if (!videoPaused) {
       danmakuElement.style.left = px(
         parseFloat(danmakuElement.style.left) -
-          (danmakuSpeed * deltaTime) / 1000
+          (config.danmaku.speed * deltaTime) / 1000
       )
     }
     requestAnimationFrame(frame)

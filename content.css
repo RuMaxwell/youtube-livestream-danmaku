@@ -1,0 +1,38 @@
+.danmaku-config-panel-content {
+  width: 270px;
+  padding: 8px 0;
+}
+
+.danmaku-config-panel-content > .danmaku-config-group:not(:first-child) {
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.danmaku-config-group > .danmaku-config-group-label {
+  padding: 10px 20px;
+  font-size: 118%;
+  font-weight: 800;
+}
+
+.danmaku-config-group > .danmaku-config-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  font-size: 118%;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.danmaku-config-group > .danmaku-config-option:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.danmaku-config-option > input[type='text'],
+.danmaku-config-option > input[type='number'] {
+  background-color: transparent;
+  width: 3em;
+  text-align: right;
+  color: #fff;
+  border: none;
+  outline: none;
+}
