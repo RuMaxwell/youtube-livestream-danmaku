@@ -23,6 +23,7 @@ danmaku (bullet comments) over a YouTube livestream video.
   - [x] Configuration panel (embedded in the video player's controls)
     - [ ] Remember settings (globally or per video)
     - [ ] Danmaku
+      - [x] On/Off (Hot key: d)
       - [ ] Font
         - [ ] Font family
         - [x] Font size
@@ -32,7 +33,6 @@ danmaku (bullet comments) over a YouTube livestream video.
         - [ ] Shadow color
         - [ ] Opacity
       - [x] Speed
-      - [x] On/Off
       - [ ] Density (all, no overlap, dense, moderate, sparse)
       - [ ] Display area (upper 1/4, 1/2, full)
       - [ ] Word blacklist

@@ -33,7 +33,7 @@ const configLabel = {
   en: {
     danmaku: {
       self: 'Danmaku',
-      onOff: 'On/Off',
+      onOff: 'On/Off (d)',
       speed: 'Speed',
       fontSize: 'Font size',
       lineGap: 'Line gap',
@@ -74,6 +74,7 @@ function initializeApp() {
 
     watchSettingsMenuChange()
     const danmakuConfigPanel = attachDanmakuConfigPanel()
+    bindHotKeys()
 
     const videoElement = getVideoElement()
     watchVideoResize(videoElement)
@@ -889,6 +890,21 @@ function animateDanmakuElement(danmakuElement: HTMLElement) {
   requestAnimationFrame(frame)
 }
 
+function bindHotKeys() {
+  document.addEventListener('keydown', hotKeyHandler)
+}
+
+function hotKeyHandler(e: KeyboardEvent) {
+  if (e.key === 'd') {
+    e.preventDefault()
+    toggleDanmaku()
+  }
+}
+
+function unbindHotKeys() {
+  document.removeEventListener('keydown', hotKeyHandler)
+}
+
 window.addEventListener('load', () => {
   console.log('YouTube Livestream Danmaku extension loaded')
   initializeApp()
@@ -902,5 +918,6 @@ window.addEventListener('unload', () => {
 
   unwatchSettingsMenuChange()
   unwatchPlayerChanges()
+  unbindHotKeys()
   console.log('YouTube Livestream Danmaku extension unloaded')
 })
