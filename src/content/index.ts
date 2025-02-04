@@ -555,7 +555,7 @@ function unwatchChatChanges() {
   chatChangesObserver = undefined
 }
 
-const newerChatAmountUpperLimit = 100
+const newerChatAmountUpperLimit = 30
 
 /**
  * Gets chats that are newer than the latest old chat.
@@ -610,6 +610,7 @@ function getChats(
       // cached chat.
       if (chat.id === lastCachedChat.id) {
         foundIdenticalChat = true
+        continue
       } else if (!foundIdenticalChat) {
         continue
       }
