@@ -33,13 +33,13 @@ danmaku (bullet comments) over a YouTube livestream video.
         - [ ] Shadow color
         - [ ] Opacity
       - [x] Speed
-      - [ ] Density (all, no overlap, dense, moderate, sparse)
+      - [x] Density (all, no overlap, dense, moderate, sparse)
       - [ ] Display area (upper 1/4, 1/2, full)
       - [ ] Word blacklist
     - [ ] Live chat area
       - [ ] Toggle whether to move it to the bottom of the video
-      - [ ] Maximum waiting time for the live chat area to load
-  - [ ] Extension configurations
+  - [x] Extension configurations
+    - [x] Maximum waiting time for the live chat area to load
 
 ## Installation
 

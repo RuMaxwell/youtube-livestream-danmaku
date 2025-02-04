@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "YouTube Livestream Danmaku",
   "description": "Display live chat messages as danmaku over YouTube livestream videos.",
-  "version": "0.3.0",
+  "version": "0.3.2",
   "action": {
     "default_icon": {
       "16": "images/icon-16.png",
@@ -11,7 +11,7 @@
       "128": "images/icon-128.png"
     }
   },
-  "permissions": ["activeTab"],
+  "permissions": ["activeTab", "storage"],
   "icons": {
     "16": "images/icon-16.png",
     "32": "images/icon-32.png",
@@ -31,5 +31,9 @@
   "background": {
     "service_worker": "background.js"
   },
-  "web_accessible_resources": []
+  "web_accessible_resources": [],
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": false
+  }
 }

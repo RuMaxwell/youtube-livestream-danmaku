@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>YouTube Livestream Danmaku Options</title>
+    <style>
+      @media (prefers-color-scheme: dark) {
+        body {
+          background-color: var(--google-grey-800, rgb(60, 64, 67));
+          color: var(--cr-primary-text-color, #f4f4f4);
+          font-size: 14px;
+        }
+      }
+
+      body {
+        padding: 4px;
+      }
+
+      .option {
+        display: block;
+        padding-bottom: 10px;
+      }
+
+      .option-label {
+        font-weight: 500;
+        padding-bottom: 8px;
+      }
+
+      .option-field {
+        padding-bottom: 8px;
+      }
+
+      .option-field > input {
+        border-top: none;
+        border-left: none;
+        border-right: none;
+        border-bottom: 1px solid #ccc;
+        outline: none;
+        padding: 5px 0.25em;
+        background-color: transparent;
+        color: inherit;
+      }
+
+      input#getLiveAppTimeout {
+        width: calc(100% - 2em);
+      }
+
+      #save {
+        padding: 7px 8px;
+        border-radius: 8px;
+        border: 1px solid var(--primary-color, #c1c4ff);
+        color: var(--primary-color, #c1c4ff);
+        background-color: transparent;
+        cursor: pointer;
+        font-weight: 800;
+        transition: box-shadow 0.2s ease-in-out;
+      }
+
+      #save:hover {
+        box-shadow: 0 0 6px rgba(0, 0, 0, 0.9);
+      }
+
+      .status-container {
+        position: absolute;
+        left: 0;
+        bottom: 10px;
+        width: 100%;
+        text-align: center;
+      }
+
+      #status {
+        background-color: var(--thumb-color, #251491);
+        padding: 10px;
+        border-radius: 9999px;
+        text-align: center;
+        color: #f4f4f4;
+        font-weight: 500;
+      }
+    </style>
+  </head>
+  <body>
+    <label class="option">
+      <div class="option-label">
+        Timeout before giving up finding live chat container (in seconds):
+      </div>
+      <div class="option-field">
+        <input type="number" id="getLiveAppTimeout" value="10" min="1" />
+        <span>s</span>
+      </div>
+    </label>
+
+    <div class="actions">
+      <button id="save">Save</button>
+    </div>
+
+    <div class="status-container">
+      <div id="status" style="display: none"></div>
+    </div>
+
+    <script src="options.js"></script>
+  </body>
+</html>

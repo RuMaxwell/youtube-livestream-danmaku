@@ -9,7 +9,7 @@ enum DanmakuDensity {
 }
 
 const extensionConfig = {
-  getLiveAppTimeout: 10000,
+  getLiveAppTimeout: 10, // seconds
   danmakuDensityLimits: {
     [DanmakuDensity.all]: 1,
     [DanmakuDensity.noOverlap]: 1,
@@ -18,6 +18,13 @@ const extensionConfig = {
     [DanmakuDensity.sparse]: 0.25,
   },
 }
+
+chrome.storage.sync.get(
+  { getLiveAppTimeout: extensionConfig.getLiveAppTimeout },
+  (result) => {
+    extensionConfig.getLiveAppTimeout = result.getLiveAppTimeout
+  }
+)
 
 const config = {
   danmaku: {
@@ -29,32 +36,34 @@ const config = {
   },
 }
 
-const configLabel = {
+const contentI18n = {
   en: {
-    danmaku: {
-      self: 'Danmaku',
-      onOff: 'On/Off (d)',
-      speed: 'Speed',
-      fontSize: 'Font size',
-      lineGap: 'Line gap',
-      density: 'Density',
-      densityTips:
-        'The density config determines how dense the danmaku are. Density lower than "All" may drop some messages.',
-      densityOption: {
-        [DanmakuDensity.all]: 'All',
-        [DanmakuDensity.noOverlap]: 'No overlap',
-        [DanmakuDensity.dense]: 'Dense',
-        [DanmakuDensity.moderate]: 'Moderate',
-        [DanmakuDensity.sparse]: 'Sparse',
-      },
-      densityOptionTips: {
-        [DanmakuDensity.all]:
-          'Display all messages. If too many messages crowd in a very short amount of time, they may overlap.',
-        [DanmakuDensity.noOverlap]:
-          'Display all messages unless they are possible to overlap.',
-        [DanmakuDensity.dense]: 'Keep most of the messages.',
-        [DanmakuDensity.moderate]: 'Keep about a half of the messages.',
-        [DanmakuDensity.sparse]: 'Keep a few of the messages.',
+    config: {
+      danmaku: {
+        self: 'Danmaku',
+        onOff: 'On/Off (d)',
+        speed: 'Speed',
+        fontSize: 'Font size',
+        lineGap: 'Line gap',
+        density: 'Density',
+        densityTips:
+          'The density config determines how dense the danmaku are. Density lower than "All" may drop some messages.',
+        densityOption: {
+          [DanmakuDensity.all]: 'All',
+          [DanmakuDensity.noOverlap]: 'No overlap',
+          [DanmakuDensity.dense]: 'Dense',
+          [DanmakuDensity.moderate]: 'Moderate',
+          [DanmakuDensity.sparse]: 'Sparse',
+        },
+        densityOptionTips: {
+          [DanmakuDensity.all]:
+            'Display all messages. If too many messages crowd in a very short amount of time, they may overlap.',
+          [DanmakuDensity.noOverlap]:
+            'Display all messages unless they are possible to overlap.',
+          [DanmakuDensity.dense]: 'Keep most of the messages.',
+          [DanmakuDensity.moderate]: 'Keep about a half of the messages.',
+          [DanmakuDensity.sparse]: 'Keep only a few of the messages.',
+        },
       },
     },
   },
@@ -100,15 +109,11 @@ function getLiveChatApp(then: (liveChatApp: any) => void) {
     const liveChatApp =
       liveChatAppIFrame?.document?.querySelector('yt-live-chat-app')
     if (!liveChatAppIFrame || !liveChatApp) {
-      if (Date.now() - startTime > extensionConfig.getLiveAppTimeout) {
+      if (Date.now() - startTime > extensionConfig.getLiveAppTimeout * 1000) {
         console.log(
-          `Failed to find live chat container after ${
-            extensionConfig.getLiveAppTimeout / 1000
-          } seconds.` +
+          `Failed to find live chat container after ${extensionConfig.getLiveAppTimeout} seconds.` +
             'If this is a livestream video, please make sure the live chat replay can be displayed.' +
-            `If it actually loaded after ${
-              extensionConfig.getLiveAppTimeout / 1000
-            } seconds, you can adjust the timeout in the extension settings.`
+            `If it actually loaded after ${extensionConfig.getLiveAppTimeout} seconds, you can adjust the timeout in the extension settings.`
         )
       } else {
         requestAnimationFrame(inner)
@@ -358,14 +363,14 @@ function makeDanmakuConfigPanelContent() {
       // Group label
       const danmakuGroupLabel = document.createElement('div')
       danmakuGroupLabel.classList.add('danmaku-config-group-label')
-      danmakuGroupLabel.innerHTML = configLabel.danmaku.self
+      danmakuGroupLabel.innerHTML = contentI18n.config.danmaku.self
       // On/Off option
       const onOffOption = document.createElement('label')
       onOffOption.classList.add('danmaku-config-option')
       {
         // Option label
         const onOffOptionLabel = document.createElement('span')
-        onOffOptionLabel.innerText = configLabel.danmaku.onOff
+        onOffOptionLabel.innerText = contentI18n.config.danmaku.onOff
         // Option input
         const onOffOptionInput = document.createElement('input')
         onOffOptionInput.type = 'checkbox'
@@ -380,7 +385,7 @@ function makeDanmakuConfigPanelContent() {
       {
         // Option label
         const speedOptionLabel = document.createElement('span')
-        speedOptionLabel.innerText = configLabel.danmaku.speed
+        speedOptionLabel.innerText = contentI18n.config.danmaku.speed
         // Option input
         const speedOptionInput = document.createElement('input')
         speedOptionInput.type = 'number'
@@ -406,7 +411,7 @@ function makeDanmakuConfigPanelContent() {
       {
         // Option label
         const fontSizeOptionLabel = document.createElement('span')
-        fontSizeOptionLabel.innerText = configLabel.danmaku.fontSize
+        fontSizeOptionLabel.innerText = contentI18n.config.danmaku.fontSize
         // Option input
         const fontSizeOptionInput = document.createElement('input')
         fontSizeOptionInput.type = 'number'
@@ -432,7 +437,7 @@ function makeDanmakuConfigPanelContent() {
       {
         // Option label
         const lineGapOptionLabel = document.createElement('span')
-        lineGapOptionLabel.innerText = configLabel.danmaku.lineGap
+        lineGapOptionLabel.innerText = contentI18n.config.danmaku.lineGap
         // Option input
         const lineGapOptionInput = document.createElement('input')
         lineGapOptionInput.type = 'number'
@@ -458,14 +463,19 @@ function makeDanmakuConfigPanelContent() {
       {
         // Option label
         const densityOptionLabel = document.createElement('span')
-        densityOptionLabel.innerText = configLabel.danmaku.density
+        densityOptionLabel.innerText = contentI18n.config.danmaku.density
+        densityOptionLabel.title = contentI18n.config.danmaku.densityTips
         // Option input
         const densityOptionInput = document.createElement('select')
         Object.values(DanmakuDensity).forEach((key) => {
           const option = document.createElement('option')
           option.value = key
           option.innerText =
-            configLabel.danmaku.densityOption[
+            contentI18n.config.danmaku.densityOption[
+              key as keyof typeof DanmakuDensity
+            ]
+          option.title =
+            contentI18n.config.danmaku.densityOptionTips[
               key as keyof typeof DanmakuDensity
             ]
           densityOptionInput.appendChild(option)

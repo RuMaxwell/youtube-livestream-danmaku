@@ -7,6 +7,7 @@ export default defineConfig({
         entry: {
           background: './src/background/index.ts',
           content: './src/content/index.ts',
+          options: './src/options/options.ts',
         },
       },
       output: {
@@ -22,6 +23,10 @@ export default defineConfig({
           {
             from: './src/content/**/*.css',
             to: '[name].css',
+          },
+          {
+            from: './src/options/**/*.html',
+            to: '[name].html',
           },
         ],
       },
