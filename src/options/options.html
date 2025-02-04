@@ -12,12 +12,12 @@
       }
 
       body {
-        padding: 4px;
+        padding: 0 4px;
       }
 
       .option {
         display: block;
-        padding-bottom: 10px;
+        padding-top: 10px;
       }
 
       .option-label {
@@ -29,7 +29,7 @@
         padding-bottom: 8px;
       }
 
-      .option-field > input {
+      .option-field > input[type='number'] {
         border-top: none;
         border-left: none;
         border-right: none;
@@ -44,19 +44,51 @@
         width: calc(100% - 2em);
       }
 
-      #save {
+      .actions {
+        padding-top: 10px;
+      }
+
+      button,
+      input[type='button'] {
         padding: 7px 8px;
         border-radius: 8px;
-        border: 1px solid var(--primary-color, #c1c4ff);
-        color: var(--primary-color, #c1c4ff);
         background-color: transparent;
         cursor: pointer;
         font-weight: 800;
         transition: box-shadow 0.2s ease-in-out;
       }
 
-      #save:hover {
+      button {
+        border: 1px solid var(--primary-color, #c1c4ff);
+        color: var(--primary-color, #c1c4ff);
+      }
+
+      input[type='button'] {
+        border: 1px solid var(--cr-primary-text-color, #212121);
+        color: var(--cr-primary-text-color, #212121);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        input[type='button'] {
+          border: 1px solid var(--cr-primary-text-color, #f4f4f4);
+          color: var(--cr-primary-text-color, #f4f4f4);
+        }
+      }
+
+      button:hover,
+      input[type='button']:hover {
         box-shadow: 0 0 6px rgba(0, 0, 0, 0.9);
+      }
+
+      .separator {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+        margin-top: 20px;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .separator {
+          border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
       }
 
       .status-container {
@@ -64,7 +96,7 @@
         left: 0;
         bottom: 10px;
         width: 100%;
-        text-align: center;
+        text-align: right;
       }
 
       #status {
@@ -78,7 +110,7 @@
     </style>
   </head>
   <body>
-    <label class="option">
+    <label id="getLiveAppTimeoutOption" class="option">
       <div class="option-label">
         Timeout before giving up finding live chat container (in seconds):
       </div>
@@ -90,7 +122,19 @@
 
     <div class="actions">
       <button id="save">Save</button>
+      <button id="reset">Reset</button>
     </div>
+
+    <div class="separator"></div>
+
+    <label id="resetPanel" class="option">
+      <div class="option-label">
+        Reset options from the video player's panel to default:
+      </div>
+      <div class="option-field">
+        <input type="button" id="resetPanelButton" value="Reset panel" />
+      </div>
+    </label>
 
     <div class="status-container">
       <div id="status" style="display: none"></div>

@@ -36,6 +36,23 @@ const config = {
   },
 }
 
+function saveConfig(): void {
+  chrome.storage.sync.set({ panel: config })
+}
+
+function loadConfig(): void {
+  chrome.storage.sync.get('panel', (result) => {
+    config.danmaku.on = result?.panel?.danmaku?.on ?? true
+    config.danmaku.speed = result?.panel?.danmaku?.speed ?? 100
+    config.danmaku.fontSize = result?.panel?.danmaku?.fontSize ?? 20
+    config.danmaku.lineGap = result?.panel?.danmaku?.lineGap ?? 20
+    config.danmaku.density =
+      result?.panel?.danmaku?.density ?? DanmakuDensity.noOverlap
+  })
+}
+
+loadConfig()
+
 const contentI18n = {
   en: {
     config: {
@@ -341,6 +358,7 @@ function toggleDanmakuConfigPanel(on?: boolean) {
   ) as HTMLElement
   if (!panel) return
   panel.style.display = isOpen ? 'block' : 'none'
+  saveConfig()
 }
 
 function makeDanmakuConfigPanel() {
@@ -401,6 +419,7 @@ function makeDanmakuConfigPanelContent() {
           config.danmaku.speed = parseInt(
             (e.target as HTMLInputElement | null)?.value || '100'
           )
+          saveConfig()
         })
 
         speedOption.append(speedOptionLabel, speedOptionInput)
@@ -427,6 +446,7 @@ function makeDanmakuConfigPanelContent() {
           config.danmaku.fontSize = parseInt(
             (e.target as HTMLInputElement | null)?.value || '20'
           )
+          saveConfig()
         })
 
         fontSizeOption.append(fontSizeOptionLabel, fontSizeOptionInput)
@@ -453,6 +473,7 @@ function makeDanmakuConfigPanelContent() {
           config.danmaku.lineGap = parseInt(
             (e.target as HTMLInputElement | null)?.value || '20'
           )
+          saveConfig()
         })
 
         lineGapOption.append(lineGapOptionLabel, lineGapOptionInput)
@@ -517,6 +538,7 @@ function toggleDanmaku() {
   if (danmakuContainer) {
     danmakuContainer.style.visibility = on ? 'visible' : 'hidden'
   }
+  saveConfig()
 }
 
 function getPlayerRightControls(then: (controls: HTMLElement) => void) {

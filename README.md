@@ -21,7 +21,8 @@ danmaku (bullet comments) over a YouTube livestream video.
 - [ ] Interractions
 - [ ] Configurations
   - [x] Configuration panel (embedded in the video player's controls)
-    - [ ] Remember settings (globally or per video)
+    - [x] Remember settings
+      - [x] Reset settings
     - [ ] Danmaku
       - [x] On/Off (Hot key: d)
       - [ ] Font
