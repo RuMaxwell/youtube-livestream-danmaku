@@ -1,5 +1,17 @@
 {
-  "dependencies": {
-    "chrome-types": "^0.1.171"
-  }
+  "name": "youtube-livestream-danmaku",
+  "version": "0.3.0",
+  "description": "Display live chat messages as danmaku over YouTube livestream videos.",
+  "scripts": {
+    "build:dev": "rsbuild build --mode development",
+    "build:watch": "rsbuild build --mode development --watch",
+    "build": "rsbuild build"
+  },
+  "type": "module",
+  "devDependencies": {
+    "@rsbuild/core": "^1.2.3",
+    "@types/chrome": "^0.0.299",
+    "typescript": "^5.7.3"
+  },
+  "packageManager": "pnpm@8.9.0+sha1.01c55344d677f3b481c6bb6ffba9a6b3c6dbd91d"
 }

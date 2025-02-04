@@ -21,8 +21,14 @@ const configLabel = {
   },
 }['en']
 
+type Chat = {
+  id: string
+  ord: number
+  messageHtml: string
+}
+
 function initializeApp() {
-  getLiveChatApp((liveChatApp) => {
+  getLiveChatApp((liveChatApp: HTMLElement) => {
     relocateLiveChat()
 
     const danmakuContainer = attachDanmakuContainer()
@@ -39,7 +45,7 @@ function initializeApp() {
   })
 }
 
-function getLiveChatApp(then) {
+function getLiveChatApp(then: (liveChatApp: any) => void) {
   const startTime = Date.now()
 
   function inner() {
@@ -67,25 +73,26 @@ function getLiveChatApp(then) {
   inner()
 }
 
-let playerChangesObserver
+let playerChangesObserver: MutationObserver | undefined
 
 function watchPlayerChanges() {
   const playerContainer = document.querySelector('#player-container')
+  if (!playerContainer) return
   playerChangesObserver = new MutationObserver((mutationsList) => {
     for (const mutation of mutationsList) {
       if (mutation.type === 'childList') {
         if (
           mutation.removedNodes.length &&
-          mutation.removedNodes[0].tagName === 'YTD-PLAYER'
+          (mutation.removedNodes[0] as Element).tagName === 'YTD-PLAYER'
         ) {
           console.log('Player removed')
           detachDanmakuContainer()
           unwatchChatChanges()
           unwatchVideoResize()
-          unwatchVideoPausePlay()
+          unwatchVideoPausePlay(getVideoElement())
         } else if (
           mutation.addedNodes.length &&
-          mutation.addedNodes[0].tagName === 'YTD-PLAYER'
+          (mutation.addedNodes[0] as Element).tagName === 'YTD-PLAYER'
         ) {
           console.log('Player added')
           getLiveChatApp((liveChatApp) => {
@@ -111,7 +118,7 @@ function relocateLiveChat() {
   // Moves live chat away from the right side of the video, making the video
   // full width in theater mode.
   const ytdWatchFlexy = document.querySelector('ytd-watch-flexy')
-  if (ytdWatchFlexy?.attributes['fixed-panels']) {
+  if (ytdWatchFlexy?.attributes?.getNamedItem('fixed-panels')) {
     ytdWatchFlexy.removeAttribute('fixed-panels')
     // Because the container of the live chat app iframe has a CSS rule that
     // selects `ytd-watch-flexy[fixed-panels]` and sets `position: fixed` and a
@@ -128,6 +135,9 @@ function attachDanmakuContainer() {
   const playerContent = document.querySelector(
     '#player-container .ytp-player-content'
   )
+  if (!playerContent) {
+    throw new Error('Cannot find player content')
+  }
   const danmakuContainer = document.createElement('div')
   danmakuContainer.id = danmakuContainerId
   danmakuContainer.style.position = 'absolute'
@@ -138,12 +148,12 @@ function attachDanmakuContainer() {
   danmakuContainer.style.overflow = 'hidden'
   danmakuContainer.style.pointerEvents = 'none'
   danmakuContainer.style.zIndex = '10'
-  playerContent.parentElement.insertBefore(danmakuContainer, playerContent)
+  playerContent.parentElement!.insertBefore(danmakuContainer, playerContent)
   return danmakuContainer
 }
 
 function getDanmakuContainer() {
-  return document.querySelector(`#${danmakuContainerId}`)
+  return document.querySelector(`#${danmakuContainerId}`) as HTMLDivElement
 }
 
 function detachDanmakuContainer() {
@@ -152,10 +162,12 @@ function detachDanmakuContainer() {
 }
 
 let isSettingsMenuOpen = false
-let settingsMenuChangeObserver
+let settingsMenuChangeObserver: MutationObserver | undefined
 
 function watchSettingsMenuChange() {
-  const settingsMenuEl = document.querySelector('.ytp-settings-menu')
+  const settingsMenuEl = document.querySelector(
+    '.ytp-settings-menu'
+  ) as HTMLElement
   if (!settingsMenuEl) {
     throw new Error('Settings menu not found')
   }
@@ -186,7 +198,7 @@ const danmakuConfigButtonText = 'Danmaku Settings'
 let isDanmakuConfigPanelOpen = false
 
 function attachDanmakuConfigPanel() {
-  getPlayerRightControls((controls) => {
+  getPlayerRightControls((controls: HTMLElement) => {
     const toggle = makeDanmakuConfigPanelToggleButton()
 
     // Inserts the toggle button before the settings button.
@@ -202,7 +214,7 @@ function attachDanmakuConfigPanel() {
       toggleDanmakuConfigPanel()
     })
 
-    let cancelKeepDisplay
+    let cancelKeepDisplay: () => void
 
     // Displays the tooltip when the mouse enters the toggle button.
     toggle.addEventListener('mouseenter', () => {
@@ -214,7 +226,7 @@ function attachDanmakuConfigPanel() {
 
       const toggleRect = toggle.getBoundingClientRect()
       const midX = toggleRect.left + toggleRect.width / 2
-      const tooltipEl = document.querySelector('.ytp-tooltip')
+      const tooltipEl = document.querySelector('.ytp-tooltip') as HTMLElement
       const tooltipTextEl = tooltipEl?.querySelector('.ytp-tooltip-text')
       if (!tooltipEl || !tooltipTextEl) return
       tooltipTextEl.innerHTML = danmakuConfigButtonText
@@ -227,7 +239,7 @@ function attachDanmakuConfigPanel() {
     // Hides the tooltip when the mouse leaves the toggle button.
     toggle.addEventListener('mouseleave', () => {
       cancelKeepDisplay?.()
-      const tooltipEl = document.querySelector('.ytp-tooltip')
+      const tooltipEl = document.querySelector('.ytp-tooltip') as HTMLElement
       const tooltipTextEl = tooltipEl?.querySelector('.ytp-tooltip-text')
       if (!tooltipEl || !tooltipTextEl) return
       tooltipEl.style.display = 'none'
@@ -235,7 +247,7 @@ function attachDanmakuConfigPanel() {
   })
 }
 
-function keepDisplayForShortTime(el) {
+function keepDisplayForShortTime(el: HTMLElement) {
   const startTime = Date.now()
   let cancelled = false
   function cancel() {
@@ -281,12 +293,6 @@ function makeDanmakuConfigPanel() {
   return panel
 }
 
-function setStyle(el, style) {
-  Object.entries(style).forEach(([key, value]) => {
-    el.style[key] = value
-  })
-}
-
 function makeDanmakuConfigPanelContent() {
   const content = document.createElement('div')
   content.classList.add('danmaku-config-panel-content')
@@ -324,15 +330,17 @@ function makeDanmakuConfigPanelContent() {
         // Option input
         const speedOptionInput = document.createElement('input')
         speedOptionInput.type = 'number'
-        speedOptionInput.value = config.danmaku.speed
-        speedOptionInput.step = 50
-        speedOptionInput.min = 50
-        speedOptionInput.max = 950
+        speedOptionInput.value = config.danmaku.speed.toString()
+        speedOptionInput.step = '50'
+        speedOptionInput.min = '50'
+        speedOptionInput.max = '950'
         speedOptionInput.addEventListener('keydown', (e) => {
           e.stopPropagation()
         })
         speedOptionInput.addEventListener('input', (e) => {
-          config.danmaku.speed = parseInt(e.target.value)
+          config.danmaku.speed = parseInt(
+            (e.target as HTMLInputElement | null)?.value || '100'
+          )
         })
 
         speedOption.append(speedOptionLabel, speedOptionInput)
@@ -347,15 +355,17 @@ function makeDanmakuConfigPanelContent() {
         // Option input
         const fontSizeOptionInput = document.createElement('input')
         fontSizeOptionInput.type = 'number'
-        fontSizeOptionInput.value = config.danmaku.fontSize
-        fontSizeOptionInput.step = 2
-        fontSizeOptionInput.min = 2
-        fontSizeOptionInput.max = 100
+        fontSizeOptionInput.value = config.danmaku.fontSize.toString()
+        fontSizeOptionInput.step = '2'
+        fontSizeOptionInput.min = '2'
+        fontSizeOptionInput.max = '100'
         fontSizeOptionInput.addEventListener('keydown', (e) => {
           e.stopPropagation()
         })
         fontSizeOptionInput.addEventListener('input', (e) => {
-          config.danmaku.fontSize = parseInt(e.target.value)
+          config.danmaku.fontSize = parseInt(
+            (e.target as HTMLInputElement | null)?.value || '20'
+          )
         })
 
         fontSizeOption.append(fontSizeOptionLabel, fontSizeOptionInput)
@@ -370,15 +380,17 @@ function makeDanmakuConfigPanelContent() {
         // Option input
         const lineGapOptionInput = document.createElement('input')
         lineGapOptionInput.type = 'number'
-        lineGapOptionInput.value = config.danmaku.lineGap
-        lineGapOptionInput.step = 2
-        lineGapOptionInput.min = 0
-        lineGapOptionInput.max = 100
+        lineGapOptionInput.value = config.danmaku.lineGap.toString()
+        lineGapOptionInput.step = '2'
+        lineGapOptionInput.min = '0'
+        lineGapOptionInput.max = '100'
         lineGapOptionInput.addEventListener('keydown', (e) => {
           e.stopPropagation()
         })
         lineGapOptionInput.addEventListener('input', (e) => {
-          config.danmaku.lineGap = parseInt(e.target.value)
+          config.danmaku.lineGap = parseInt(
+            (e.target as HTMLInputElement | null)?.value || '20'
+          )
         })
 
         lineGapOption.append(lineGapOptionLabel, lineGapOptionInput)
@@ -387,7 +399,8 @@ function makeDanmakuConfigPanelContent() {
         danmakuGroupLabel,
         onOffOption,
         speedOption,
-        fontSizeOption
+        fontSizeOption,
+        lineGapOption
       )
     }
     content.append(danmakuGroup)
@@ -408,9 +421,11 @@ function toggleDanmaku() {
   }
 }
 
-function getPlayerRightControls(then) {
+function getPlayerRightControls(then: (controls: HTMLElement) => void) {
   function inner() {
-    const controls = document.querySelector('.ytp-right-controls')
+    const controls = document.querySelector(
+      '.ytp-right-controls'
+    ) as HTMLElement
     if (controls) {
       then(controls)
       return
@@ -422,12 +437,14 @@ function getPlayerRightControls(then) {
 }
 
 function getVideoElement() {
-  return document.querySelector('.html5-video-container > video')
+  return document.querySelector(
+    '.html5-video-container > video'
+  ) as HTMLVideoElement
 }
 
-let videoResizeObserver
+let videoResizeObserver: ResizeObserver | undefined
 
-function watchVideoResize(videoElement) {
+function watchVideoResize(videoElement: HTMLVideoElement) {
   videoResizeObserver = new ResizeObserver(() => {
     console.log('Video resized')
     relocateLiveChat()
@@ -447,12 +464,12 @@ function unwatchVideoResize() {
 
 let videoPaused = false
 
-function watchVideoPausePlay(videoElement) {
+function watchVideoPausePlay(videoElement: HTMLVideoElement) {
   videoElement.addEventListener('pause', onVideoPause)
   videoElement.addEventListener('play', onVideoPlay)
 }
 
-function unwatchVideoPausePlay(videoElement) {
+function unwatchVideoPausePlay(videoElement: HTMLVideoElement) {
   videoElement?.removeEventListener('pause', onVideoPause)
   videoElement?.removeEventListener('play', onVideoPlay)
 }
@@ -468,13 +485,16 @@ function onVideoPlay() {
 }
 
 let isFirstChange = true
-let chatChangesObserver
+let chatChangesObserver: MutationObserver | undefined
 
-function watchChatChanges(liveChatApp, danmakuContainer) {
+function watchChatChanges(
+  liveChatApp: HTMLElement,
+  danmakuContainer: HTMLElement
+) {
   unwatchChatChanges()
 
   // The cache of the previous incoming chats.
-  let chats = []
+  let chats: Chat[] = []
   isFirstChange = true
 
   chatChangesObserver = new MutationObserver((mutationsList) => {
@@ -486,13 +506,16 @@ function watchChatChanges(liveChatApp, danmakuContainer) {
           liveChatApp,
           lastCachedChat
         )
+        if (newerChats.length === 0 && !lastChat) {
+          continue
+        }
         // Caches newer incoming chats if there are newer chats. Replaces the
         // cache with the last incoming chat when all incoming chats are older
         // than the cache. This can happen when the user seeks the video to a
         // time before the current playback position. The live chat area is
         // refreshed, so we need to refresh our cache, too. This can also happen
         // in other cases, but the solution is the same.
-        chats = newerChats.length ? newerChats : [lastChat]
+        chats = newerChats.length ? newerChats : [lastChat!]
         console.log('Newer chats:', newerChats)
         if (isFirstChange) {
           // Don't display old chats when the page is first loaded or when the
@@ -512,7 +535,7 @@ function watchChatChanges(liveChatApp, danmakuContainer) {
   })
   // This calls the handler immediately and all pre-existing chats will be
   // stored to `chats`, and `isFirstChange` will be changed to `false`.
-  chatChangesObserver.observe(liveChatApp.querySelector('#items'), {
+  chatChangesObserver.observe(liveChatApp.querySelector('#items')!, {
     childList: true,
   })
 }
@@ -524,55 +547,53 @@ function unwatchChatChanges() {
 
 /**
  * Gets chats that are newer than the latest old chat.
- * @returns {{ newer: any[]; last?: any }} Newer chats (may be empty if none is
- * newer than the given `lastChatOrd`) and the last existing chat (may be
- * `undefined` if no existing chat).
+ * @returns Newer chats (may be empty if none is newer than the given
+ * `lastChatOrd`) and the last existing chat (may be `undefined` if no existing
+ * chat).
  */
-function getChats(liveChatApp, lastCachedChat) {
+function getChats(
+  liveChatApp: HTMLElement,
+  lastCachedChat: Chat
+): { newer: Chat[]; last?: Chat } {
   const chatRenderers = liveChatApp.querySelectorAll(
     '#items .yt-live-chat-item-list-renderer'
   )
-  let lastChat
-  const maybeNewerChats = Array.from(
-    chatRenderers
-      .values()
-      .map((renderer) => {
-        if (!renderer.querySelector('#timestamp')) {
-          // Some items have no timestamp (e.g. system messages), no need to
-          // include them.
-          return null
-        }
-        // Known handled cases:
-        // renderer.tagName.toLowerCase() === 'yt-live-chat-paid-message-renderer'
-        // renderer.tagName.toLowerCase() === 'yt-live-chat-membership-item-renderer'
-        // renderer.tagName.toLowerCase() === 'yt-live-chat-text-message-renderer'
-        const id = renderer.id
-        const ord = timestampToOrd(
-          renderer.querySelector('#timestamp').innerText
-        )
-        const messageHtml = renderer.querySelector('#message').innerHTML
-        if (!messageHtml) {
-          // Some items have no message (e.g. joining subscription), no need to
-          // include them.
-          return null
-        }
-        lastChat = {
-          id,
-          ord,
-          messageHtml,
-        }
-        return lastChat
-      })
-      .filter((chat) => {
-        if (!chat) return
-        if (chat.ord >= lastCachedChat.ord) {
-          // Chats with larger ord are always newer. Chats with the same ord
-          // have at least one older chats that will be filtered out later.
-          return true
-        }
-        return false
-      })
-  )
+  let lastChat: Chat | undefined
+  const maybeNewerChats: Chat[] = []
+  for (const renderer of chatRenderers) {
+    if (!renderer.querySelector('#timestamp')) {
+      // Some items have no timestamp (e.g. system messages), no need to
+      // include them.
+      continue
+    }
+    // Known handled cases:
+    // renderer.tagName.toLowerCase() === 'yt-live-chat-paid-message-renderer'
+    // renderer.tagName.toLowerCase() === 'yt-live-chat-membership-item-renderer'
+    // renderer.tagName.toLowerCase() === 'yt-live-chat-text-message-renderer'
+    const id = renderer.id
+    const ord = timestampToOrd(
+      (renderer.querySelector('#timestamp')! as HTMLElement).innerText
+    )
+    const messageHtml = (renderer.querySelector('#message') as HTMLElement)
+      ?.innerHTML
+    if (!messageHtml) {
+      // Some items have no message (e.g. joining subscription), no need to
+      // include them.
+      continue
+    }
+    lastChat = {
+      id,
+      ord,
+      messageHtml,
+    }
+    if (lastChat.ord < lastCachedChat.ord) {
+      // Keeps only newer chats. Chats with larger ord are always newer.
+      // Chats with the same ord have at least one older chats that will be
+      // filtered out later.
+      continue
+    }
+    maybeNewerChats.push(lastChat)
+  }
 
   let newerChats = []
   // There should be a same chat item because chats with the same ord are
@@ -597,13 +618,13 @@ function getChats(liveChatApp, lastCachedChat) {
   return { newer: newerChats, last: lastChat }
 }
 
-function timestampToOrd(timestamp) {
+function timestampToOrd(timestamp: string) {
   const [mins, secs] = timestamp.split(':')
   const sign = mins.startsWith('-') ? -1 : 1
   return parseInt(mins) * 60 + sign * parseInt(secs)
 }
 
-function makeDanmakuElements(chats, danmakuContainer) {
+function makeDanmakuElements(chats: Chat[], danmakuContainer: HTMLElement) {
   // Gets the the right position of the rightmost existing element of every line
   // from top to bottom. The indices of this array are the line indices of the
   // elements. An array is used so that the iteration will be from top to
@@ -614,7 +635,7 @@ function makeDanmakuElements(chats, danmakuContainer) {
   //    ----- -----]
   //        ----------]
   //             ------]
-  const rightmostShape = []
+  const rightmostShape: number[] = []
   const containerRect = danmakuContainer.getBoundingClientRect()
   for (const currentEl of danmakuContainer.children) {
     const currentRect = currentEl.getBoundingClientRect()
@@ -634,7 +655,7 @@ function makeDanmakuElements(chats, danmakuContainer) {
   }
 
   let nextLineIndex = -1
-  let bottomOverflowStartIndex = undefined
+  let bottomOverflowStartIndex: number | undefined = undefined
   return chats.map((chat, i) => {
     // There have been elements that are placed in spite of overlapping because
     // of overflow, so just put the next under it.
@@ -696,11 +717,11 @@ function makeDanmakuElements(chats, danmakuContainer) {
   })
 }
 
-function px(value) {
+function px(value: number) {
   return `${value}px`
 }
 
-function makeDanmakuElement(chat, lineIndex) {
+function makeDanmakuElement(chat: Chat, lineIndex: number) {
   const danmakuElement = document.createElement('div')
   // danmakuElement.innerText = chat.message
   danmakuElement.innerHTML = chat.messageHtml
@@ -721,15 +742,15 @@ function makeDanmakuElement(chat, lineIndex) {
   return danmakuElement
 }
 
-function animateDanmakuElements(danmakuElements) {
+function animateDanmakuElements(danmakuElements: HTMLElement[]) {
   danmakuElements.forEach((element) => {
     animateDanmakuElement(element)
   })
 }
 
-function animateDanmakuElement(danmakuElement) {
-  let lastTime = null
-  function frame(currentTime) {
+function animateDanmakuElement(danmakuElement: HTMLElement) {
+  let lastTime: number | null = null
+  function frame(currentTime: number) {
     if (parseFloat(danmakuElement.style.left) < -danmakuElement.clientWidth) {
       danmakuElement.remove()
       return

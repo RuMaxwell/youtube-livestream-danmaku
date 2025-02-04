@@ -1,4 +1,14 @@
-.vscode/
-images/*.psd
-node_modules/
+# Local
 .DS_Store
+*.local
+*.log*
+
+# Dist
+node_modules/
+dist/
+
+# IDE
+.vscode/
+
+# Interal
+_internal/
