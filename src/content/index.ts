@@ -562,6 +562,7 @@ function getVideoElement() {
   ) as HTMLVideoElement
 }
 
+let isFirstChange = true
 let videoResizeObserver: ResizeObserver | undefined
 
 function watchVideoResize(videoElement: HTMLVideoElement) {
@@ -570,6 +571,7 @@ function watchVideoResize(videoElement: HTMLVideoElement) {
     relocateLiveChat()
     getLiveChatApp((liveChatApp) => {
       unwatchChatChanges()
+      isFirstChange = true
       watchChatChanges(liveChatApp, getDanmakuContainer())
     })
     window.dispatchEvent(new Event('resize')) // Makes the video place itself correctly
@@ -604,7 +606,6 @@ function onVideoPlay() {
   videoPaused = false
 }
 
-let isFirstChange = true
 let chatChangesObserver: MutationObserver | undefined
 
 function watchChatChanges(
