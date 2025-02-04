@@ -555,6 +555,8 @@ function unwatchChatChanges() {
   chatChangesObserver = undefined
 }
 
+const newerChatAmountUpperLimit = 100
+
 /**
  * Gets chats that are newer than the latest old chat.
  * @returns Newer chats (may be empty if none is newer than the given
@@ -568,8 +570,12 @@ function getChats(
   const chatRenderers = liveChatApp.querySelectorAll(
     '#items .yt-live-chat-item-list-renderer'
   )
+
+  // Saves the last chat to return to the caller as the time reference if no
+  // newer chat is found.
   let lastChat: Chat | undefined
-  const maybeNewerChats: Chat[] = []
+  const newerChats: Chat[] = []
+  let foundIdenticalChat = false
   for (const renderer of chatRenderers) {
     if (!renderer.querySelector('#timestamp')) {
       // Some items have no timestamp (e.g. system messages), no need to
@@ -591,40 +597,33 @@ function getChats(
       // include them.
       continue
     }
-    lastChat = {
+    const chat = {
       id,
       ord,
       messageHtml,
     }
-    if (lastChat.ord < lastCachedChat.ord) {
-      // Keeps only newer chats. Chats with larger ord are always newer.
-      // Chats with the same ord have at least one older chats that will be
-      // filtered out later.
+    if (chat.ord < lastCachedChat.ord) {
+      // Drops older chats.
       continue
-    }
-    maybeNewerChats.push(lastChat)
-  }
-
-  let newerChats = []
-  // There should be a same chat item because chats with the same ord are
-  // remained.
-  const hasSame = !!maybeNewerChats.find(
-    (chat) => chat.id === lastCachedChat.id
-  )
-  if (hasSame) {
-    // Newer chats are the chats after which has the same id of the last cached
-    // one.
-    let dropping = true
-    for (const chat of maybeNewerChats) {
-      if (dropping && chat.id === lastCachedChat.id) {
-        dropping = false
-      } else if (!dropping) {
-        newerChats.push(chat)
+    } else if (chat.ord === lastCachedChat.ord) {
+      // When ord is equal, the chat is newer if it is after the id of the
+      // cached chat.
+      if (chat.id === lastCachedChat.id) {
+        foundIdenticalChat = true
+      } else if (!foundIdenticalChat) {
+        continue
       }
     }
-  } else {
-    newerChats = maybeNewerChats
+    newerChats.push(chat)
+    lastChat = chat
+
+    if (newerChats.length > newerChatAmountUpperLimit) {
+      // Prevents too many new danmaku from being added at once, causing the
+      // browser to hang.
+      break
+    }
   }
+
   return { newer: newerChats, last: lastChat }
 }
 
