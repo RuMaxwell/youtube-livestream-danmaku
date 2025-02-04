@@ -20,25 +20,26 @@ danmaku (bullet comments) over a YouTube livestream video.
   - [x] Stop moving when the video is paused and resume when the video is played
 - [ ] Interractions
 - [ ] Configurations
-  - [x] Configuration panel
+  - [x] Configuration panel (embedded in the video player's controls)
+    - [ ] Remember settings (globally or per video)
+    - [ ] Danmaku
+      - [ ] Font
+        - [ ] Font family
+        - [x] Font size
+      - [x] Line gap
+      - [ ] Color
+        - [ ] Text color
+        - [ ] Shadow color
+        - [ ] Opacity
+      - [x] Speed
+      - [x] On/Off
+      - [ ] Density (all, no overlap, dense, moderate, sparse)
+      - [ ] Display area (upper 1/4, 1/2, full)
+      - [ ] Word blacklist
+    - [ ] Live chat area
+      - [ ] Toggle whether to move it to the bottom of the video
+      - [ ] Maximum waiting time for the live chat area to load
   - [ ] Extension configurations
-  - [ ] Danmaku
-    - [ ] Font
-      - [ ] Font family
-      - [x] Font size
-    - [x] Line gap
-    - [ ] Color
-      - [ ] Text color
-      - [ ] Shadow color
-      - [ ] Opacity
-    - [x] Speed
-    - [x] On/Off
-    - [ ] Density (all, no overlap, dense, moderate, sparse)
-    - [ ] Display area (upper 1/4, 1/2, full)
-    - [ ] Word blacklist
-  - [ ] Live chat area
-    - [ ] Toggle whether to move it to the bottom of the video
-    - [ ] Maximum waiting time for the live chat area to load
 
 ## Installation
 

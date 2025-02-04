@@ -61,7 +61,11 @@ function getLiveChatApp(then: (liveChatApp: any) => void) {
       liveChatAppIFrame?.document?.querySelector('yt-live-chat-app')
     if (!liveChatAppIFrame || !liveChatApp) {
       if (Date.now() - startTime > 10000) {
-        console.warn('Failed to find live chat container after 10 seconds')
+        console.log(
+          'Failed to find live chat container after 10 seconds.' +
+            'If this is a livestream video, please make sure the live chat replay can be displayed.' +
+            'If it actually loaded after 10 seconds, you can adjust the timeout in the extension settings.'
+        )
       } else {
         requestAnimationFrame(inner)
       }
