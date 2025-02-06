@@ -1,25 +1,78 @@
+const userPreferredLanguage = navigator.language
+
 const optionsI18n = {
   en: {
     getLiveAppTimeoutOption:
-      'Timeout before giving up finding live chat container (in seconds):',
+      'Timeout before giving up detecting the live chat area (in seconds):',
     resetPanelDescription:
-      "Reset options from the video player's panel to default (you need to reload the video page to see the change):",
+      "Reset options of the video player's panel to default (you need to reload the video page to see the change):",
     resetPanel: 'Reset panel',
     save: 'Save',
     saved: 'Saved!',
     reset: 'Reset to default',
     resetted: 'Resetted!',
     sureToReset: 'Are you sure you want to reset the options to the default?',
+    confirm: 'Confirm',
+    cancel: 'Cancel',
   },
-}['en']
+  jp: {
+    getLiveAppTimeoutOption:
+      'ライブチャットのエリアの検出を諦めるまでのタイムアウト（秒）：',
+    resetPanelDescription:
+      'ビデオプレーヤーのパネルでのオプションをリセットする（ビデオページをリフレッシュして変化する）：',
+    resetPanel: 'パネルをリセット',
+    save: '保存',
+    saved: '保存されました!',
+    reset: 'デフォルトにリセット',
+    resetted: 'リセットされました!',
+    sureToReset: 'オプションをデフォルトにリセットしてもよろしいですか？',
+    confirm: '確認',
+    cancel: 'キャンセル',
+  },
+  'zh-CN': {
+    getLiveAppTimeoutOption: '检测直播聊天区域的最大等待时间（秒）：',
+    resetPanelDescription:
+      '重置视频播放器面板的选项（需要重新加载视频页面才能生效）：',
+    resetPanel: '重置面板设置',
+    save: '保存',
+    saved: '保存成功！',
+    reset: '恢复默认设置',
+    resetted: '重置成功！',
+    sureToReset: '确定要恢复设置为默认值吗？',
+    confirm: '确定',
+    cancel: '取消',
+  },
+  'zh-TW': {
+    getLiveAppTimeoutOption: '檢測直播聊天區域的最長等待時間（秒）：',
+    resetPanelDescription:
+      '重設影片播放器面板的選項（需要重新載入影片頁面才能生效）：',
+    resetPanel: '重設面板設定',
+    save: '儲存',
+    saved: '儲存成功！',
+    reset: '恢復預設設定',
+    resetted: '重設成功！',
+    sureToReset: '确定要恢復設定為預設值吗？',
+    confirm: '確認',
+    cancel: '取消',
+  },
+}
 
-getElement('#save').textContent = optionsI18n.save
-getElement('#reset').textContent = optionsI18n.reset
+const i18n =
+  userPreferredLanguage in optionsI18n
+    ? optionsI18n[userPreferredLanguage as keyof typeof optionsI18n]
+    : userPreferredLanguage.slice(0, 2) in optionsI18n
+    ? optionsI18n[userPreferredLanguage.slice(0, 2) as keyof typeof optionsI18n]
+    : optionsI18n.en
+
+getElement('#save').textContent = i18n.save
+getElement('#reset').textContent = i18n.reset
 getElement('#getLiveAppTimeoutOption > .option-label').textContent =
-  optionsI18n.getLiveAppTimeoutOption
+  i18n.getLiveAppTimeoutOption
 getElement('#resetPanel > .option-label').textContent =
-  optionsI18n.resetPanelDescription
-getElement('#resetPanelButton').value = optionsI18n.resetPanel
+  i18n.resetPanelDescription
+getElement('#resetPanelButton').value = i18n.resetPanel
+getElement('#dialog-confirm').textContent = i18n.confirm
+getElement('#dialog-cancel').textContent = i18n.cancel
 
 const defaultOptions = {
   getLiveAppTimeout: 10,
@@ -36,7 +89,7 @@ function saveOptionsFromDom() {
       getLiveAppTimeout,
     },
     () => {
-      showStatus(optionsI18n.saved)
+      showStatus(i18n.saved)
     }
   )
 }
@@ -71,7 +124,7 @@ let thingToReset: 'options' | 'panel' | null = null
 function openDialog(thing: typeof thingToReset) {
   thingToReset = thing
   getElement('#dialog-overlay').style.display = 'block'
-  getElement('#dialog-content').innerHTML = optionsI18n.sureToReset
+  getElement('#dialog-content').innerHTML = i18n.sureToReset
 }
 
 function closeDialog() {
@@ -94,7 +147,7 @@ function handleCancel() {
 
 function resetOptions() {
   saveOptions(defaultOptions, () => {
-    showStatus(optionsI18n.resetted)
+    showStatus(i18n.resetted)
   })
   restoreOptions()
 }
@@ -113,7 +166,7 @@ function resetPanelOptions() {
       },
     },
     () => {
-      showStatus(optionsI18n.resetted)
+      showStatus(i18n.resetted)
     }
   )
 }

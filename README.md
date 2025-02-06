@@ -42,6 +42,11 @@ danmaku (bullet comments) over a YouTube livestream video.
       - [ ] Toggle whether to move it to the bottom of the video
   - [x] Extension configurations
     - [x] Maximum waiting time for the live chat area to load
+- Languages
+  - [x] English
+  - [x] Chinese (Simplified)
+  - [x] Chinese (Traditional)
+  - [x] Japanese
 
 ## Installation
 
