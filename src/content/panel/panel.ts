@@ -147,6 +147,10 @@ function toggleDanmakuConfigPanel(on?: boolean) {
   saveConfig()
 }
 
+function getDanmakuConfigPanel() {
+  return document.querySelector('#' + danmakuConfigPanelId) as HTMLElement
+}
+
 function makeDanmakuConfigPanel() {
   const panel = document.createElement('div')
   panel.id = danmakuConfigPanelId
@@ -155,6 +159,8 @@ function makeDanmakuConfigPanel() {
   panel.appendChild(makeDanmakuConfigPanelContent())
   return panel
 }
+
+const onOffOptionInputId = 'onOffOptionInput'
 
 function makeDanmakuConfigPanelContent() {
   const content = document.createElement('div')
@@ -177,6 +183,7 @@ function makeDanmakuConfigPanelContent() {
         onOffOptionLabel.innerText = i18n.config.danmaku.onOff
         // Option input
         const onOffOptionInput = document.createElement('input')
+        onOffOptionInput.id = onOffOptionInputId
         onOffOptionInput.type = 'checkbox'
         onOffOptionInput.checked = config.danmaku.on
         onOffOptionInput.addEventListener('change', toggleDanmaku)
@@ -313,16 +320,24 @@ function makeDanmakuConfigPanelContent() {
   return content
 }
 
+function setCheckbox(id: string, checked: boolean): void {
+  const panel = getDanmakuConfigPanel()
+  if (!panel) return
+  ;(panel.querySelector('#' + id)! as HTMLInputElement).checked = checked
+}
+
 export function toggleDanmaku() {
   const on = !config.danmaku.on
   config.danmaku.on = on
-  const danmakuToggle = getDanmakuConfigPanelToggle()
-  if (danmakuToggle) {
-    danmakuToggle.innerHTML = on ? danmakuOnSvg : danmakuOffSvg
-  }
   const danmakuContainer = getDanmakuContainer()
   if (danmakuContainer) {
     danmakuContainer.style.visibility = on ? 'visible' : 'hidden'
   }
+  const danmakuToggle = getDanmakuConfigPanelToggle()
+  if (danmakuToggle) {
+    danmakuToggle.innerHTML = on ? danmakuOnSvg : danmakuOffSvg
+  }
+  setCheckbox(onOffOptionInputId, on)
+
   saveConfig()
 }
