@@ -54,13 +54,28 @@
         border-radius: 8px;
         background-color: transparent;
         cursor: pointer;
+        font-size: 14px;
         font-weight: 800;
         transition: box-shadow 0.2s ease-in-out;
       }
 
+      button.small,
+      input[type='button'].small {
+        padding: 4px 6px;
+        border-radius: 6px;
+        font-size: 12px;
+      }
+
       button {
-        border: 1px solid var(--primary-color, #c1c4ff);
-        color: var(--primary-color, #c1c4ff);
+        border: 1px solid var(--primary-color, #3e37d4);
+        color: var(--primary-color, #3e37d4);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        button {
+          border: 1px solid var(--primary-color, #c1c4ff);
+          color: var(--primary-color, #c1c4ff);
+        }
       }
 
       input[type='button'] {
@@ -75,9 +90,42 @@
         }
       }
 
+      button.info,
+      input[type='button'].info {
+        border: 1px solid var(--cr-primary-text-color, #212121);
+        color: var(--cr-primary-text-color, #212121);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        button.info,
+        input[type='button'].info {
+          border: 1px solid var(--cr-primary-text-color, #f4f4f4);
+          color: var(--cr-primary-text-color, #f4f4f4);
+        }
+      }
+
+      button.danger,
+      input[type='button'].danger {
+        border: 1px solid var(--cr-danger-color, #d32f2f);
+        color: var(--cr-danger-color, #d32f2f);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        button.danger,
+        input[type='button'].danger {
+          border: 1px solid var(--cr-danger-color, #d32f2f);
+          color: var(--cr-danger-color, #d32f2f);
+        }
+      }
+
+      button,
+      input[type='button'] {
+        transition: width 0.2s ease-in-out, height 0.2s ease-in-out;
+      }
+
       button:hover,
       input[type='button']:hover {
-        box-shadow: 0 0 6px rgba(0, 0, 0, 0.9);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
       }
 
       .separator {
@@ -91,21 +139,68 @@
         }
       }
 
+      #dialog-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.2);
+      }
+
+      .dialog {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 200px;
+        background-color: #fff;
+        border: 1px solid rgba(0, 0, 0, 0.15);
+        border-radius: 8px;
+        padding: 15px;
+        box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+      }
+
+      .dialog-actions {
+        margin-top: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+      }
+
+      .dialog-actions > button {
+        margin-left: 5px;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        #dialog-overlay {
+          background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .dialog {
+          background-color: #1e1e1e;
+          border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+      }
+
       .status-container {
         position: absolute;
         left: 0;
-        bottom: 10px;
+        bottom: 12px;
         width: 100%;
         text-align: right;
+        pointer-events: none;
       }
 
       #status {
+        display: inline-block;
         background-color: var(--thumb-color, #251491);
         padding: 10px;
         border-radius: 9999px;
         text-align: center;
         color: #f4f4f4;
         font-weight: 500;
+        transition: opacity 0.3s ease;
       }
     </style>
   </head>
@@ -127,17 +222,29 @@
 
     <div class="separator"></div>
 
-    <label id="resetPanel" class="option">
+    <div id="resetPanel" class="option">
       <div class="option-label">
         Reset options from the video player's panel to default:
       </div>
       <div class="option-field">
         <input type="button" id="resetPanelButton" value="Reset panel" />
       </div>
-    </label>
+    </div>
+
+    <div id="dialog-overlay" style="display: none">
+      <div class="dialog">
+        <div id="dialog-content">
+          Are you sure you want to reset the options to the default?
+        </div>
+        <div class="dialog-actions">
+          <button id="dialog-cancel" class="small info">No</button>
+          <button id="dialog-confirm" class="small danger">Yes</button>
+        </div>
+      </div>
+    </div>
 
     <div class="status-container">
-      <div id="status" style="display: none"></div>
+      <div id="status" style="opacity: 0"></div>
     </div>
 
     <script src="options.js"></script>

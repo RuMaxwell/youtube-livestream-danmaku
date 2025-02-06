@@ -9,6 +9,7 @@ const optionsI18n = {
     saved: 'Saved!',
     reset: 'Reset to default',
     resetted: 'Resetted!',
+    sureToReset: 'Are you sure you want to reset the options to the default?',
   },
 }['en']
 
@@ -50,13 +51,45 @@ function restoreOptions(): void {
   })
 }
 
+let statusTimeout: number | null = null
+
 function showStatus(text: string) {
   const statusEl = getElement('#status')
   statusEl.textContent = text
-  statusEl.style.display = 'inline-block'
-  setTimeout(() => {
-    statusEl.style.display = 'none'
+  statusEl.style.opacity = '1'
+  if (statusTimeout !== null) {
+    clearTimeout(statusTimeout)
+  }
+  statusTimeout = setTimeout(() => {
+    statusEl.style.opacity = '0'
+    statusTimeout = null
   }, 1500)
+}
+
+let thingToReset: 'options' | 'panel' | null = null
+
+function openDialog(thing: typeof thingToReset) {
+  thingToReset = thing
+  getElement('#dialog-overlay').style.display = 'block'
+  getElement('#dialog-content').innerHTML = optionsI18n.sureToReset
+}
+
+function closeDialog() {
+  thingToReset = null
+  getElement('#dialog-overlay').style.display = 'none'
+}
+
+function handleConfirm() {
+  if (thingToReset === 'options') {
+    resetOptions()
+  } else if (thingToReset === 'panel') {
+    resetPanelOptions()
+  }
+  closeDialog()
+}
+
+function handleCancel() {
+  closeDialog()
 }
 
 function resetOptions() {
@@ -87,5 +120,10 @@ function resetPanelOptions() {
 
 document.addEventListener('DOMContentLoaded', restoreOptions)
 getElement('#save').addEventListener('click', saveOptionsFromDom)
-getElement('#reset').addEventListener('click', resetOptions)
-getElement('#resetPanelButton').addEventListener('click', resetPanelOptions)
+getElement('#reset').addEventListener('click', () => openDialog('options'))
+getElement('#resetPanelButton').addEventListener('click', () =>
+  openDialog('panel')
+)
+getElement('#dialog-overlay').addEventListener('click', closeDialog)
+getElement('#dialog-confirm').addEventListener('click', handleConfirm)
+getElement('#dialog-cancel').addEventListener('click', handleCancel)

@@ -19,6 +19,7 @@ danmaku (bullet comments) over a YouTube livestream video.
     lines
   - [x] Stop moving when the video is paused and resume when the video is played
 - [ ] Interractions
+  - [ ] Send danmaku from the panel
 - [ ] Configurations
   - [x] Configuration panel (embedded in the video player's controls)
     - [x] Remember settings
