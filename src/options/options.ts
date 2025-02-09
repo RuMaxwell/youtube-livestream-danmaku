@@ -163,6 +163,7 @@ function resetPanelOptions() {
           lineGap: 20,
           density: 'noOverlap',
           opacity: 1,
+          displayArea: 'full',
         },
       },
     },

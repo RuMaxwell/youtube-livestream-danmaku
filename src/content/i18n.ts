@@ -1,4 +1,4 @@
-import { DanmakuDensity } from './config'
+import { DanmakuDensity, DisplayArea } from './config'
 
 const contentI18n = {
   en: {
@@ -29,6 +29,12 @@ const contentI18n = {
           [DanmakuDensity.sparse]: 'Keep only a few of the messages.',
         },
         opacity: 'Opacity',
+        displayArea: 'Display area',
+        displayAreaOption: {
+          [DisplayArea.full]: 'Full',
+          [DisplayArea.half]: 'Top 1/2',
+          [DisplayArea.quarter]: 'Top 1/4',
+        },
       },
       panelButtonTooltip: 'Danmaku settings',
     },
@@ -61,6 +67,12 @@ const contentI18n = {
           [DanmakuDensity.sparse]: '少数のメッセージのみ残す。',
         },
         opacity: '不透明度',
+        displayArea: '表示領域',
+        displayAreaOption: {
+          [DisplayArea.full]: '全て',
+          [DisplayArea.half]: '上部 1/2',
+          [DisplayArea.quarter]: '上部 1/4',
+        },
       },
       panelButtonTooltip: '弾幕設定',
     },
@@ -91,6 +103,12 @@ const contentI18n = {
           [DanmakuDensity.sparse]: '只保留少量消息。',
         },
         opacity: '不透明度',
+        displayArea: '显示区域',
+        displayAreaOption: {
+          [DisplayArea.full]: '全屏',
+          [DisplayArea.half]: '上半部分',
+          [DisplayArea.quarter]: '顶部 1/4',
+        },
       },
       panelButtonTooltip: '弹幕设置',
     },
@@ -121,6 +139,12 @@ const contentI18n = {
           [DanmakuDensity.sparse]: '僅保留少量訊息。',
         },
         opacity: '不透明度',
+        displayArea: '顯示區域',
+        displayAreaOption: {
+          [DisplayArea.full]: '全螢幕',
+          [DisplayArea.half]: '上半部',
+          [DisplayArea.quarter]: '上 1/4',
+        },
       },
       panelButtonTooltip: '彈幕設定',
     },

@@ -37,7 +37,7 @@ danmaku (bullet comments) over a YouTube livestream video.
         - [x] Opacity
       - [x] Speed
       - [x] Density (all, no overlap, dense, moderate, sparse)
-      - [ ] Display area (upper 1/4, 1/2, full)
+      - [x] Display area (upper 1/4, 1/2, full)
       - [ ] Word blacklist
     - [ ] Live chat area
       - [ ] Toggle whether to move it to the bottom of the video

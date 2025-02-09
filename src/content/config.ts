@@ -6,6 +6,18 @@ export enum DanmakuDensity {
   sparse = 'sparse',
 }
 
+export enum DisplayArea {
+  full = 'full',
+  half = 'half',
+  quarter = 'quarter',
+}
+
+export const displayAreaLimits = {
+  [DisplayArea.full]: 1,
+  [DisplayArea.half]: 0.5,
+  [DisplayArea.quarter]: 0.25,
+}
+
 export const extensionConfig = {
   getLiveAppTimeout: 10, // seconds
   danmakuDensityLimits: {
@@ -19,10 +31,11 @@ export const extensionConfig = {
 
 // To add a new configuration:
 // 1. add the key and the default value to this object
-// 2. add the label to the i18n object
-// 3. add the option to the danmaku config panel
-// 4. add an assignment to the loadConfig function
-// 5. add an entry to the resetPanelOptions function of src/options/options.ts
+// 2. add an assignment to the loadConfig function
+// 3. add an entry to the resetPanelOptions function of src/options/options.ts
+// 4. add the label to the i18n object
+// 5. add the option to the danmaku config panel
+// 6. write the actual mechanism of the configuration
 export const config = {
   danmaku: {
     on: true,
@@ -31,6 +44,7 @@ export const config = {
     lineGap: 20, // px
     density: DanmakuDensity.noOverlap,
     opacity: 1,
+    displayArea: DisplayArea.full,
   },
 }
 
@@ -59,5 +73,7 @@ export function loadConfig(): void {
     config.danmaku.density =
       result?.panel?.danmaku?.density ?? DanmakuDensity.noOverlap
     config.danmaku.opacity = result?.panel?.danmaku?.opacity ?? 1
+    config.danmaku.displayArea =
+      result?.panel?.danmaku?.displayArea ?? DisplayArea.full
   })
 }

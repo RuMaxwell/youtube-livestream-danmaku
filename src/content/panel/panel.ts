@@ -1,4 +1,4 @@
-import { config, DanmakuDensity, setConfig } from '../config'
+import { config, DanmakuDensity, DisplayArea, setConfig } from '../config'
 import {
   getDanmakuContainer,
   setDanmakuContainerOpacity,
@@ -167,190 +167,265 @@ const onOffOptionInputId = 'onOffOptionInput'
 function makeDanmakuConfigPanelContent() {
   const content = document.createElement('div')
   content.classList.add('danmaku-config-panel-content')
-  {
-    // Danmaku group
-    const danmakuGroup = document.createElement('div')
-    danmakuGroup.classList.add('danmaku-config-group')
-    {
-      // Group label
-      const danmakuGroupLabel = document.createElement('div')
-      danmakuGroupLabel.classList.add('danmaku-config-group-label')
-      danmakuGroupLabel.innerHTML = i18n.config.danmaku.self
-      // On/Off option
-      const onOffOption = document.createElement('label')
-      onOffOption.classList.add('danmaku-config-option')
-      {
-        // Option label
-        const onOffOptionLabel = document.createElement('span')
-        onOffOptionLabel.innerText = i18n.config.danmaku.onOff
-        // Option input
-        const onOffOptionInput = document.createElement('input')
-        onOffOptionInput.id = onOffOptionInputId
-        onOffOptionInput.type = 'checkbox'
-        onOffOptionInput.checked = config.danmaku.on
-        onOffOptionInput.addEventListener('change', toggleDanmaku)
 
-        onOffOption.append(onOffOptionLabel, onOffOptionInput)
-      }
-      // Speed option
-      const speedOption = document.createElement('label')
-      speedOption.classList.add('danmaku-config-option')
-      {
-        // Option label
-        const speedOptionLabel = document.createElement('span')
-        speedOptionLabel.innerText = i18n.config.danmaku.speed
-        // Option input
-        const speedOptionInput = document.createElement('input')
-        speedOptionInput.type = 'number'
-        speedOptionInput.value = config.danmaku.speed.toString()
-        speedOptionInput.step = '50'
-        speedOptionInput.min = '50'
-        speedOptionInput.max = '950'
-        speedOptionInput.style.width = '3em'
-        speedOptionInput.addEventListener('keydown', (e) => {
-          e.stopPropagation()
-        })
-        speedOptionInput.addEventListener('input', (e) => {
-          setConfig((config) => {
-            config.danmaku.speed = parseInt(
-              (e.target as HTMLInputElement | null)?.value || '100'
-            )
-          })
-        })
+  // Groups
+  const danmakuGroup = makeDanmakuGroup()
 
-        speedOption.append(speedOptionLabel, speedOptionInput)
-      }
-      // Font size option
-      const fontSizeOption = document.createElement('label')
-      fontSizeOption.classList.add('danmaku-config-option')
-      {
-        // Option label
-        const fontSizeOptionLabel = document.createElement('span')
-        fontSizeOptionLabel.innerText = i18n.config.danmaku.fontSize
-        // Option input
-        const fontSizeOptionInput = document.createElement('input')
-        fontSizeOptionInput.type = 'number'
-        fontSizeOptionInput.value = config.danmaku.fontSize.toString()
-        fontSizeOptionInput.step = '2'
-        fontSizeOptionInput.min = '2'
-        fontSizeOptionInput.max = '100'
-        fontSizeOptionInput.style.width = '3em'
-        fontSizeOptionInput.addEventListener('keydown', (e) => {
-          e.stopPropagation()
-        })
-        fontSizeOptionInput.addEventListener('input', (e) => {
-          setConfig((config) => {
-            config.danmaku.fontSize = parseInt(
-              (e.target as HTMLInputElement | null)?.value || '20'
-            )
-          })
-        })
-
-        fontSizeOption.append(fontSizeOptionLabel, fontSizeOptionInput)
-      }
-      // Line gap option
-      const lineGapOption = document.createElement('label')
-      lineGapOption.classList.add('danmaku-config-option')
-      {
-        // Option label
-        const lineGapOptionLabel = document.createElement('span')
-        lineGapOptionLabel.innerText = i18n.config.danmaku.lineGap
-        // Option input
-        const lineGapOptionInput = document.createElement('input')
-        lineGapOptionInput.type = 'number'
-        lineGapOptionInput.value = config.danmaku.lineGap.toString()
-        lineGapOptionInput.step = '2'
-        lineGapOptionInput.min = '0'
-        lineGapOptionInput.max = '100'
-        lineGapOptionInput.style.width = '3em'
-        lineGapOptionInput.addEventListener('keydown', (e) => {
-          e.stopPropagation()
-        })
-        lineGapOptionInput.addEventListener('input', (e) => {
-          setConfig((config) => {
-            config.danmaku.lineGap = parseInt(
-              (e.target as HTMLInputElement | null)?.value || '20'
-            )
-          })
-        })
-
-        lineGapOption.append(lineGapOptionLabel, lineGapOptionInput)
-      }
-      // Density option
-      const densityOption = document.createElement('label')
-      densityOption.classList.add('danmaku-config-option')
-      {
-        // Option label
-        const densityOptionLabel = document.createElement('span')
-        densityOptionLabel.innerText = i18n.config.danmaku.density
-        densityOptionLabel.title = i18n.config.danmaku.densityTips
-        // Option input
-        const densityOptionInput = document.createElement('select')
-        Object.values(DanmakuDensity).forEach((key) => {
-          const option = document.createElement('option')
-          option.value = key
-          option.innerText =
-            i18n.config.danmaku.densityOption[
-              key as keyof typeof DanmakuDensity
-            ]
-          option.title =
-            i18n.config.danmaku.densityOptionTips[
-              key as keyof typeof DanmakuDensity
-            ]
-          densityOptionInput.appendChild(option)
-        })
-        densityOptionInput.value = config.danmaku.density
-        densityOptionInput.addEventListener('change', (e) => {
-          setConfig((config) => {
-            config.danmaku.density =
-              DanmakuDensity[
-                (e.target as HTMLSelectElement | null)
-                  ?.value as keyof typeof DanmakuDensity
-              ] || DanmakuDensity.all
-          })
-          toggleDanmakuConfigPanel(false)
-        })
-
-        densityOption.append(densityOptionLabel, densityOptionInput)
-      }
-      // Opacity option
-      const opacityOption = document.createElement('label')
-      opacityOption.classList.add('danmaku-config-option')
-      {
-        // Option label
-        const opacityOptionLabel = document.createElement('span')
-        opacityOptionLabel.innerText = i18n.config.danmaku.opacity
-        // Option input
-        const opacityOptionInput = document.createElement('input')
-        opacityOptionInput.type = 'number'
-        opacityOptionInput.value = (config.danmaku.opacity * 100).toString()
-        opacityOptionInput.step = '10'
-        opacityOptionInput.min = '0'
-        opacityOptionInput.max = '100'
-        opacityOptionInput.addEventListener('input', (e) => {
-          const opacity =
-            parseInt((e.target as HTMLInputElement | null)?.value || '100') /
-            100
-          setDanmakuContainerOpacity(opacity)
-          setConfig((config) => {
-            config.danmaku.opacity = opacity
-          })
-        })
-        opacityOption.append(opacityOptionLabel, opacityOptionInput)
-      }
-      danmakuGroup.append(
-        danmakuGroupLabel,
-        onOffOption,
-        speedOption,
-        fontSizeOption,
-        lineGapOption,
-        densityOption,
-        opacityOption
-      )
-    }
-    content.append(danmakuGroup)
-  }
+  content.append(danmakuGroup)
   return content
+}
+
+function makeDanmakuGroup(): HTMLElement {
+  // Danmaku group
+  const danmakuGroup = document.createElement('div')
+  danmakuGroup.classList.add('danmaku-config-group')
+  {
+    // Group label
+    const danmakuGroupLabel = document.createElement('div')
+    danmakuGroupLabel.classList.add('danmaku-config-group-label')
+    danmakuGroupLabel.innerHTML = i18n.config.danmaku.self
+
+    // Options
+    const onOffOption = makeOnOffOption()
+    const speedOption = makeSpeedOption()
+    const fontSizeOption = makeFontSizeOption()
+    const lineGapOption = makeLineGapOption()
+    const densityOption = makeDensityOption()
+    const opacityOption = makeOpacityOption()
+    const displayAreaOption = makeDisplayAreaOption()
+
+    danmakuGroup.append(
+      danmakuGroupLabel,
+      onOffOption,
+      speedOption,
+      fontSizeOption,
+      lineGapOption,
+      densityOption,
+      opacityOption,
+      displayAreaOption
+    )
+  }
+  return danmakuGroup
+}
+
+function makeOnOffOption(): HTMLElement {
+  // On/Off option
+  const onOffOption = document.createElement('label')
+  onOffOption.classList.add('danmaku-config-option')
+  {
+    // Option label
+    const onOffOptionLabel = document.createElement('span')
+    onOffOptionLabel.innerText = i18n.config.danmaku.onOff
+    // Option input
+    const onOffOptionInput = document.createElement('input')
+    onOffOptionInput.id = onOffOptionInputId
+    onOffOptionInput.type = 'checkbox'
+    onOffOptionInput.checked = config.danmaku.on
+    onOffOptionInput.addEventListener('change', toggleDanmaku)
+
+    onOffOption.append(onOffOptionLabel, onOffOptionInput)
+  }
+  return onOffOption
+}
+
+function makeSpeedOption(): HTMLElement {
+  // Speed option
+  const speedOption = document.createElement('label')
+  speedOption.classList.add('danmaku-config-option')
+  {
+    // Option label
+    const speedOptionLabel = document.createElement('span')
+    speedOptionLabel.innerText = i18n.config.danmaku.speed
+    // Option input
+    const speedOptionInput = document.createElement('input')
+    speedOptionInput.type = 'number'
+    speedOptionInput.value = config.danmaku.speed.toString()
+    speedOptionInput.step = '50'
+    speedOptionInput.min = '50'
+    speedOptionInput.max = '950'
+    speedOptionInput.style.width = '3em'
+    speedOptionInput.addEventListener('keydown', (e) => {
+      e.stopPropagation()
+    })
+    speedOptionInput.addEventListener('input', (e) => {
+      setConfig((config) => {
+        config.danmaku.speed = parseInt(
+          (e.target as HTMLInputElement | null)?.value || '100'
+        )
+      })
+    })
+
+    speedOption.append(speedOptionLabel, speedOptionInput)
+  }
+  return speedOption
+}
+
+function makeFontSizeOption(): HTMLElement {
+  // Font size option
+  const fontSizeOption = document.createElement('label')
+  fontSizeOption.classList.add('danmaku-config-option')
+  {
+    // Option label
+    const fontSizeOptionLabel = document.createElement('span')
+    fontSizeOptionLabel.innerText = i18n.config.danmaku.fontSize
+    // Option input
+    const fontSizeOptionInput = document.createElement('input')
+    fontSizeOptionInput.type = 'number'
+    fontSizeOptionInput.value = config.danmaku.fontSize.toString()
+    fontSizeOptionInput.step = '2'
+    fontSizeOptionInput.min = '2'
+    fontSizeOptionInput.max = '100'
+    fontSizeOptionInput.style.width = '3em'
+    fontSizeOptionInput.addEventListener('keydown', (e) => {
+      e.stopPropagation()
+    })
+    fontSizeOptionInput.addEventListener('input', (e) => {
+      setConfig((config) => {
+        config.danmaku.fontSize = parseInt(
+          (e.target as HTMLInputElement | null)?.value || '20'
+        )
+      })
+    })
+
+    fontSizeOption.append(fontSizeOptionLabel, fontSizeOptionInput)
+  }
+  return fontSizeOption
+}
+
+function makeLineGapOption(): HTMLElement {
+  // Line gap option
+  const lineGapOption = document.createElement('label')
+  lineGapOption.classList.add('danmaku-config-option')
+  {
+    // Option label
+    const lineGapOptionLabel = document.createElement('span')
+    lineGapOptionLabel.innerText = i18n.config.danmaku.lineGap
+    // Option input
+    const lineGapOptionInput = document.createElement('input')
+    lineGapOptionInput.type = 'number'
+    lineGapOptionInput.value = config.danmaku.lineGap.toString()
+    lineGapOptionInput.step = '2'
+    lineGapOptionInput.min = '0'
+    lineGapOptionInput.max = '100'
+    lineGapOptionInput.style.width = '3em'
+    lineGapOptionInput.addEventListener('keydown', (e) => {
+      e.stopPropagation()
+    })
+    lineGapOptionInput.addEventListener('input', (e) => {
+      setConfig((config) => {
+        config.danmaku.lineGap = parseInt(
+          (e.target as HTMLInputElement | null)?.value || '20'
+        )
+      })
+    })
+
+    lineGapOption.append(lineGapOptionLabel, lineGapOptionInput)
+  }
+  return lineGapOption
+}
+
+function makeDensityOption(): HTMLElement {
+  // Density option
+  const densityOption = document.createElement('label')
+  densityOption.classList.add('danmaku-config-option')
+  {
+    // Option label
+    const densityOptionLabel = document.createElement('span')
+    densityOptionLabel.innerText = i18n.config.danmaku.density
+    densityOptionLabel.title = i18n.config.danmaku.densityTips
+    // Option input
+    const densityOptionInput = document.createElement('select')
+    Object.keys(DanmakuDensity).forEach((key) => {
+      const option = document.createElement('option')
+      option.value = key
+      option.innerText =
+        i18n.config.danmaku.densityOption[
+          DanmakuDensity[key as keyof typeof DanmakuDensity]
+        ]
+      option.title =
+        i18n.config.danmaku.densityOptionTips[
+          DanmakuDensity[key as keyof typeof DanmakuDensity]
+        ]
+      densityOptionInput.appendChild(option)
+    })
+    densityOptionInput.value = config.danmaku.density
+    densityOptionInput.addEventListener('change', (e) => {
+      setConfig((config) => {
+        config.danmaku.density =
+          DanmakuDensity[
+            (e.target as HTMLSelectElement | null)
+              ?.value as keyof typeof DanmakuDensity
+          ] || DanmakuDensity.all
+      })
+      toggleDanmakuConfigPanel(false)
+    })
+
+    densityOption.append(densityOptionLabel, densityOptionInput)
+  }
+  return densityOption
+}
+
+function makeOpacityOption(): HTMLElement {
+  // Opacity option
+  const opacityOption = document.createElement('label')
+  opacityOption.classList.add('danmaku-config-option')
+  {
+    // Option label
+    const opacityOptionLabel = document.createElement('span')
+    opacityOptionLabel.innerText = i18n.config.danmaku.opacity
+    // Option input
+    const opacityOptionInput = document.createElement('input')
+    opacityOptionInput.type = 'number'
+    opacityOptionInput.value = (config.danmaku.opacity * 100).toString()
+    opacityOptionInput.step = '10'
+    opacityOptionInput.min = '0'
+    opacityOptionInput.max = '100'
+    opacityOptionInput.addEventListener('input', (e) => {
+      const opacity =
+        parseInt((e.target as HTMLInputElement | null)?.value || '100') / 100
+      setDanmakuContainerOpacity(opacity)
+      setConfig((config) => {
+        config.danmaku.opacity = opacity
+      })
+    })
+    opacityOption.append(opacityOptionLabel, opacityOptionInput)
+  }
+  return opacityOption
+}
+
+function makeDisplayAreaOption(): HTMLElement {
+  // Display area option
+  const displayAreaOption = document.createElement('label')
+  displayAreaOption.classList.add('danmaku-config-option')
+  {
+    // Option label
+    const displayAreaOptionLabel = document.createElement('span')
+    displayAreaOptionLabel.innerText = i18n.config.danmaku.displayArea
+    // Option input
+    const displayAreaOptionInput = document.createElement('select')
+    Object.keys(DisplayArea).forEach((key) => {
+      const option = document.createElement('option')
+      option.value = key
+      option.innerText =
+        i18n.config.danmaku.displayAreaOption[
+          DisplayArea[key as keyof typeof DisplayArea]
+        ]
+      displayAreaOptionInput.appendChild(option)
+    })
+    displayAreaOptionInput.value = config.danmaku.displayArea
+    displayAreaOptionInput.addEventListener('change', (e) => {
+      setConfig((config) => {
+        config.danmaku.displayArea =
+          DisplayArea[
+            (e.target as HTMLSelectElement | null)
+              ?.value as keyof typeof DisplayArea
+          ] || DisplayArea.full
+      })
+      toggleDanmakuConfigPanel(false)
+    })
+    displayAreaOption.append(displayAreaOptionLabel, displayAreaOptionInput)
+  }
+  return displayAreaOption
 }
 
 function setCheckbox(id: string, checked: boolean): void {

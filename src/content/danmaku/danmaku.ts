@@ -1,4 +1,9 @@
-import { config, DanmakuDensity, extensionConfig } from '../config'
+import {
+  config,
+  DanmakuDensity,
+  displayAreaLimits,
+  extensionConfig,
+} from '../config'
 import { states } from '../states'
 import { px } from '../utils'
 import { Chat } from './types'
@@ -91,9 +96,9 @@ export function makeDanmakuElements(
     if (
       nextLineIndex * (config.danmaku.fontSize + config.danmaku.lineGap) +
         config.danmaku.fontSize >
-      containerRect.height
+      containerRect.height * displayAreaLimits[config.danmaku.displayArea]
     ) {
-      // If the new element will be placed out of the container...
+      // If the new element will be placed out of the display area...
       if (config.danmaku.density !== DanmakuDensity.all) {
         // If density is not "all", avoid overlapping.
         break
