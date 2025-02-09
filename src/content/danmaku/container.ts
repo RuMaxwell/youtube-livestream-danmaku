@@ -31,3 +31,9 @@ export function detachDanmakuContainer() {
   console.log('Detaching danmaku container')
   getDanmakuContainer()?.remove()
 }
+
+export function setDanmakuContainerOpacity(opacity: number): void {
+  const danmakuContainer = getDanmakuContainer()
+  if (!danmakuContainer) return
+  danmakuContainer.style.opacity = opacity.toString()
+}

@@ -17,6 +17,12 @@ export const extensionConfig = {
   },
 }
 
+// To add a new configuration:
+// 1. add the key and the default value to this object
+// 2. add the label to the i18n object
+// 3. add the option to the danmaku config panel
+// 4. add an assignment to the loadConfig function
+// 5. add an entry to the resetPanelOptions function of src/options/options.ts
 export const config = {
   danmaku: {
     on: true,
@@ -24,10 +30,16 @@ export const config = {
     fontSize: 20, // px
     lineGap: 20, // px
     density: DanmakuDensity.noOverlap,
+    opacity: 1,
   },
 }
 
-export function saveConfig(): void {
+export function setConfig(setter: (value: typeof config) => void): void {
+  setter(config)
+  saveConfig()
+}
+
+function saveConfig(): void {
   chrome.storage.sync.set({ panel: config })
 }
 
@@ -46,5 +58,6 @@ export function loadConfig(): void {
     config.danmaku.lineGap = result?.panel?.danmaku?.lineGap ?? 20
     config.danmaku.density =
       result?.panel?.danmaku?.density ?? DanmakuDensity.noOverlap
+    config.danmaku.opacity = result?.panel?.danmaku?.opacity ?? 1
   })
 }

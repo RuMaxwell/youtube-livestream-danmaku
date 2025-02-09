@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "YouTube Livestream Danmaku",
   "description": "Display live chat messages as danmaku over YouTube livestream videos.",
-  "version": "0.3.5",
+  "version": "0.3.6",
   "action": {
     "default_icon": {
       "16": "images/icon-16.png",

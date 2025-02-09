@@ -162,6 +162,7 @@ function resetPanelOptions() {
           fontSize: 20,
           lineGap: 20,
           density: 'noOverlap',
+          opacity: 1,
         },
       },
     },
