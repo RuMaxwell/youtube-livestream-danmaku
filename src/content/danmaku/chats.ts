@@ -109,6 +109,7 @@ function getChats(
       ord,
       messageHtml,
     }
+    lastChat = chat
     if (chat.ord < lastCachedChat.ord) {
       // Drops older chats.
       continue
@@ -123,7 +124,6 @@ function getChats(
       }
     }
     newerChats.push(chat)
-    lastChat = chat
 
     if (newerChats.length > newerChatAmountUpperLimit) {
       // Prevents too many new danmaku from being added at once, causing the
