@@ -136,7 +136,15 @@ function getChats(
 }
 
 function timestampToOrd(timestamp: string) {
-  const [mins, secs] = timestamp.split(':')
-  const sign = mins.startsWith('-') ? -1 : 1
-  return parseInt(mins) * 60 + sign * parseInt(secs)
+  const segs = timestamp.split(':')
+  if (segs.length === 2) {
+    const [mins, secs] = segs
+    const sign = mins.startsWith('-') ? -1 : 1
+    return parseInt(mins) * 60 + sign * parseInt(secs)
+  } else if (segs.length === 3) {
+    const [hours, mins, secs] = segs
+    return parseInt(hours) * 60 * 60 + parseInt(mins) * 60 + parseInt(secs)
+  } else {
+    throw new Error('Invalid timestamp: ' + timestamp)
+  }
 }
