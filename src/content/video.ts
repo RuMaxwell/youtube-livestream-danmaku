@@ -9,6 +9,10 @@ export function getVideoElement() {
   ) as HTMLVideoElement
 }
 
+export function centerVideo(videoElement: HTMLVideoElement) {
+  videoElement.style.left = `calc((100vw - ${videoElement.style.width}) / 2)`
+}
+
 let videoResizeObserver: ResizeObserver | undefined
 
 export function watchVideoResize(videoElement: HTMLVideoElement) {

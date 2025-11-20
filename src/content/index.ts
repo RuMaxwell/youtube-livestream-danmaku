@@ -15,6 +15,7 @@ import {
 } from './panel/panel'
 import { unwatchPlayerChanges, watchPlayerChanges } from './player'
 import {
+  centerVideo,
   getVideoElement,
   unwatchVideoPausePlay,
   unwatchVideoResize,
@@ -35,6 +36,7 @@ function initializeApp() {
     bindHotKeys()
 
     const videoElement = getVideoElement()
+    centerVideo(videoElement)
     watchVideoResize(videoElement)
     watchVideoPausePlay(videoElement)
 

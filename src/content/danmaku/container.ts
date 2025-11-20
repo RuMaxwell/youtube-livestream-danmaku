@@ -4,7 +4,7 @@ export function attachDanmakuContainer() {
   console.log('Attaching danmaku container')
   // const playerContainer = document.querySelector('#player-container')
   const playerContent = document.querySelector(
-    '#player-container .ytp-player-content'
+    '#player-container .html5-video-container'
   )
   if (!playerContent) {
     throw new Error('Cannot find player content')
@@ -18,7 +18,7 @@ export function attachDanmakuContainer() {
   danmakuContainer.style.height = '100%'
   danmakuContainer.style.overflow = 'hidden'
   danmakuContainer.style.pointerEvents = 'none'
-  danmakuContainer.style.zIndex = '10'
+  danmakuContainer.style.zIndex = '11'
   playerContent.parentElement!.insertBefore(danmakuContainer, playerContent)
   return danmakuContainer
 }

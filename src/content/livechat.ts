@@ -43,4 +43,10 @@ export function relocateLiveChat() {
     // bunch of stuff to make the live chat stick to the right side of the
     // video.
   }
+
+  // Removes the empty panel container after we moved the live chat panel away.
+  const fullBleedContainerPanel = document.querySelector(
+    '#panels-full-bleed-container'
+  )
+  fullBleedContainerPanel?.remove()
 }
